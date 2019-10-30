@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29418.71
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DisCore", "DisCore\DisCore.csproj", "{D96FB5F5-E61B-4BCB-B080-261ED2BFEE25}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleModule", "ExampleModule\ExampleModule.csproj", "{B385958F-0613-484E-B5EC-9FE9CEA70047}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D96FB5F5-E61B-4BCB-B080-261ED2BFEE25}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D96FB5F5-E61B-4BCB-B080-261ED2BFEE25}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D96FB5F5-E61B-4BCB-B080-261ED2BFEE25}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D96FB5F5-E61B-4BCB-B080-261ED2BFEE25}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B385958F-0613-484E-B5EC-9FE9CEA70047}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B385958F-0613-484E-B5EC-9FE9CEA70047}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B385958F-0613-484E-B5EC-9FE9CEA70047}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B385958F-0613-484E-B5EC-9FE9CEA70047}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {92C542EE-E2CB-4F5C-B3DA-0A3060EC5E45}
+	EndGlobalSection
+EndGlobal
