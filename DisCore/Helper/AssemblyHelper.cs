@@ -1,0 +1,42 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using DisCore.Commands;
+using DisCore.Module;
+
+namespace DisCore.Helper
+{
+    public static class AssemblyHelper
+    {
+        public static Type GetIModuleType(Assembly assembly)
+        {
+            return assembly.GetTypes().FirstOrDefault(item => item.GetInterfaces().Contains(typeof(IModule)));
+        }
+
+        public static IEnumerable<MethodInfo> GetCommandMethods(Assembly assembly)
+        {
+            List<MethodInfo> methodInfos = new List<MethodInfo>();
+            foreach (Type t in assembly.GetTypes())
+            {
+                var attrib = (Command)t.GetCustomAttribute(typeof(Command));
+                if (attrib != null)
+                {
+                    CommandGroup cg = new CommandGroup(attrib.Name);
+
+                    foreach (var methodInfo in t.GetMethods())
+                    {
+                        if (methodInfo.Name == "Summary")
+                            continue;
+                        if (methodInfo.IsFamily)
+
+                        methodInfos.Add(methodInfo);
+                    }
+                }
+            }
+
+            return methodInfos;
+        }
+    }
+}

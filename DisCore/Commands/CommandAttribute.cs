@@ -7,7 +7,7 @@ namespace DisCore.Commands
     [AttributeUsage(AttributeTargets.Class)]
     public class Command : Attribute
     {
-        private string Name;
+        public string Name;
 
         public Command(string name)
         {

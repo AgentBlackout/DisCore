@@ -4,8 +4,10 @@ using System.Text;
 
 namespace DisCore.Commands
 {
-    public interface ICommand
+    public enum CommandResult
     {
-        String Summary();
+        Success,
+        Failure,
     }
+
 }
