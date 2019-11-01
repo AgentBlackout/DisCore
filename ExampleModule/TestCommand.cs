@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using DisCore.Commands;
+﻿using System.Threading.Tasks;
+using DisCore.Core.Commands;
 
 namespace ExampleModule
 {
@@ -12,13 +9,15 @@ namespace ExampleModule
         public async Task<CommandResult> Test()
         {
             await Task.Delay(1);
-            return CommandResult.Success;
+            return CommandResult.Success();
         }
 
         public async Task<CommandResult> Test(string details)
         {
             await Task.Delay(0);
-            return CommandResult.Failure;
+            if (details.Length < 5)
+                return CommandResult.BadArgs("Needs to be longer than 5 chars");
+            return CommandResult.Success();
         }
 
         public string Summary()

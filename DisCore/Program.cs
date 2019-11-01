@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
-using DisCore.Commands;
-using DisCore.Helper;
-using DisCore.Module;
+using DisCore.Core.Module;
+using DisCore.Helpers;
 
 namespace DisCore
 {

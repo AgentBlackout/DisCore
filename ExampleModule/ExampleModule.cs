@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
-using DisCore;
-using DisCore.Commands;
-using DisCore.Module;
+using DisCore.Core;
+using DisCore.Core.Module;
 
 namespace ExampleModule
 {
@@ -12,6 +10,7 @@ namespace ExampleModule
         public new string Name => "ExampleModule";
         public new String Version => "0.0.1";
         public new String Author => "AgentBlackout";
+        public string Summary => "Brief description about the module? I suppose it's a test module.";
 
         public async Task OnLoad(CorePlaceholder placeholder)
         {
