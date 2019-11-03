@@ -8,15 +8,15 @@ namespace DisCore.Core.Module
     {
         public readonly ModuleInfo Info;
 
-        private IModule moduleObject;
+        private readonly IModule _moduleObject;
 
-        private List<CommandGroup> Commands;
+        private List<ICommand> _commands;
 
-        public String Summary => moduleObject.Summary;
+        public String Summary => _moduleObject.Summary;
 
         public Module(IModule modObject)
         {
-            
+            _moduleObject = modObject;
         }
 
     }

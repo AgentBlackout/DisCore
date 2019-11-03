@@ -1,4 +1,6 @@
-﻿namespace DisCore.Core.Commands
+﻿using System.Threading.Tasks;
+
+namespace DisCore.Core.Commands
 {
     public enum CommandResultType
     {
@@ -21,29 +23,29 @@
             result = res;
         }
 
-        public static CommandResult Success(object res = null)
+        public static async Task<CommandResult> Success(object res = null)
         {
-            return new CommandResult(CommandResultType.Success, res);
+            return await Task.Run(() => new CommandResult(CommandResultType.Success, res));
         }
 
-        public static CommandResult BadArgs(object res = null)
+        public static async Task<CommandResult> BadArgs(object res = null)
         {
-            return new CommandResult(CommandResultType.BadArgs, res);
+            return await Task.Run(() => new CommandResult(CommandResultType.BadArgs, res));
         }
 
-        public static CommandResult Cooldown(object res = null)
+        public static async Task<CommandResult> Cooldown(object res = null)
         {
-            return new CommandResult(CommandResultType.Cooldown, res);
+            return await Task.Run(() => new CommandResult(CommandResultType.Cooldown, res));
         }
 
-        public static CommandResult PermissionDenied(object res = null)
+        public static async Task<CommandResult> PermissionDenied(object res = null)
         {
-            return new CommandResult(CommandResultType.PermissionDenied, res);
+            return await Task.Run(() => new CommandResult(CommandResultType.PermissionDenied, res));
         }
 
-        public static CommandResult Exception(object res = null)
+        public static async Task<CommandResult> Exception(object res = null)
         {
-            return new CommandResult(CommandResultType.Exception, res);
+            return await Task.Run(() => new CommandResult(CommandResultType.Exception, res));
         }
     }
 

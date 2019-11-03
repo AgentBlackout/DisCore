@@ -4,6 +4,7 @@
     {
         User,
         Moderator,
-        Administrator
+        Administrator,
+        Creator
     }
 }

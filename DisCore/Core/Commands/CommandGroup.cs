@@ -4,36 +4,41 @@ using System.Reflection;
 
 namespace DisCore.Core.Commands
 {
-    class CommandGroup
+    public class CommandGroup
     {
-        private string CommandName;
-        private List<MethodInfo> Methods;
+        private string _commandName;
+        private List<MethodInfo> _methods;
 
-        private Func<String> usageFunc;
-        private Func<String> summaryFunc;
+        private List<CommandGroup> _subCommandGroups;
 
-        public String Usage => usageFunc();
-        public String Summary => summaryFunc();
+        private Func<String> _usageFunc;
+        private Func<String> _summaryFunc;
 
-        public CommandGroup(string cmdName)
+        public String Usage => _usageFunc();
+        public String Summary => _summaryFunc();
+
+        public CommandGroup(string cmdName, Func<string> usage, Func<string> summary)
         {
-            CommandName = cmdName;
-            Methods = new List<MethodInfo>();
+            _commandName = cmdName;
+            _methods = new List<MethodInfo>();
+
+            _usageFunc = usage;
+            _summaryFunc = summary;
         }
 
         public void AddMethod(MethodInfo info)
         {
-            Methods.Add(info);
+            _methods.Add(info);
         }
 
         public void RemoveMethod(MethodInfo info)
         {
-            Methods.Remove(info);
+            _methods.Remove(info);
         }
 
         public IEnumerable<MethodInfo> GetMethods()
         {
-            return Methods;
+            return _methods;
         }
 
     }

@@ -11,7 +11,7 @@ namespace DisCore.Core.Module
 
         String Summary { get; }
 
-        Task OnLoad(CorePlaceholder placeholder);
+        Task OnLoad();
 
         Task OnUnload();
     }

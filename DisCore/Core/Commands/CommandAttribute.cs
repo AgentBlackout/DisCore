@@ -3,13 +3,20 @@
 namespace DisCore.Core.Commands
 {
     [AttributeUsage(AttributeTargets.Class)]
-    public class Command : Attribute
+    public class CommandAttribute : Attribute
     {
         public string Name;
+        public Type Parent; 
 
-        public Command(string name)
+        public CommandAttribute(string name)
         {
             this.Name = name;
+        }
+
+        public CommandAttribute(Type t, string name)
+        {
+            Parent = t;
+            Name = name;
         }
     }
 }
