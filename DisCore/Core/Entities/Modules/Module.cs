@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using DisCore.Core.Commands;
+using DisCore.Core.Module;
 
-namespace DisCore.Core.Module
+namespace DisCore.Core.Entities.Modules
 {
     public class Module
     {

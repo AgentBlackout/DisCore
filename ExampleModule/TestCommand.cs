@@ -14,6 +14,9 @@ namespace ExampleModule
     [Command("test")]
     public class TestCommand : ICommand
     {
+        private readonly DisCoreRoot _disCore = DisCoreRoot.Singleton;
+
+        //!test
         public async Task<CommandResult> Test(CommandContext cmd)
         {
 
@@ -31,18 +34,20 @@ namespace ExampleModule
 
             return await CommandResult.Success();
         }
-
+        //!test hello world
         public async Task<CommandResult> Test(CommandContext cmd, string details)
         {
             if (details.Length < 5)
                 return await CommandResult.BadArgs("Needs to be longer than 5 chars");
 
+            //Timeout changes
             Timeout.SetTimeout(TimeSpan.FromSeconds(30));
 
             return await CommandResult.Success();
         }
 
-        [Timeout()]
+        //!test subtest
+        [Timeout(PermissionLevels.Creator)]
         [RequiredPermissions(PermissionLevels.Administrator)]
         [SubCommand("subtest1")]
         public async Task<CommandResult> Subtest()

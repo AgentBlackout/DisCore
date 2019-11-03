@@ -2,9 +2,9 @@
 {
     public enum PermissionLevels
     {
-        User,
-        Moderator,
-        Administrator,
-        Creator
+        User = 0,
+        Moderator = 1,
+        Administrator = 2,
+        Creator = 3
     }
 }

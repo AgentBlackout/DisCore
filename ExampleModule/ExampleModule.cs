@@ -12,7 +12,7 @@ namespace ExampleModule
         public String Author => "AgentBlackout";
         public string Summary => "Brief description about the module? I suppose it's a test module.";
 
-        public async Task OnLoad(CorePlaceholder placeholder)
+        public async Task OnLoad()
         {
             await Task.Delay(200);
         }

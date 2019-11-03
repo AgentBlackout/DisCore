@@ -1,4 +1,4 @@
-﻿namespace DisCore.Core.Module
+﻿namespace DisCore.Core.Entities.Modules
 {
     public class ModuleInfo
     {

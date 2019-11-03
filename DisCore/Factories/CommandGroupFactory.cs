@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using DisCore.Core;
@@ -11,7 +12,7 @@ namespace DisCore.Factories
     {
         public static CommandGroup GetCommandGroup(DisCoreRoot core, Type t)
         {
-            if (t.IsSubclassOf(typeof(Command)) && t != typeof(Command))
+            if (t.GetInterfaces().Contains(typeof(ICommand)))
             {
 
 
@@ -19,7 +20,7 @@ namespace DisCore.Factories
                 if (attrib == null)
                     return null;
 
-                Command c = (Command)Activator.CreateInstance(t, core);
+                ICommand c = (ICommand)Activator.CreateInstance(t, core);
 
                 var cmdGroup = new CommandGroup(attrib.Name, c.Usage, c.Summary);
 
