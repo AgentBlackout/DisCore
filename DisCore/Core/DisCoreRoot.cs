@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using DisCore.Core.Commands.Timeouts;
 using DisCore.Core.Config;
 using DisCore.Core.Entities;
-using DisCore.Core.Log;
+using DisCore.Core.Logging;
 using DisCore.Core.Permissions;
 using DisCore.Helpers;
 using DSharpPlus;
