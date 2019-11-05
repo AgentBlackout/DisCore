@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using DisCore.Core.Commands.Parser;
 using DisCore.Core.Commands.Timeouts;
 using DisCore.Core.Entities.Commands;
 using DisCore.Core.Permissions;
+using DisCore.Helpers;
 using DSharpPlus.Entities;
 
 namespace DisCore.Core.Commands
@@ -15,7 +17,7 @@ namespace DisCore.Core.Commands
         private readonly ICommandParser _parser;
 
         private readonly string _commandName;
-        private List<MethodInfo> _methods;
+        private List<Command> _commands;
 
         private List<CommandGroup> _subCommandGroups;
 
@@ -35,7 +37,7 @@ namespace DisCore.Core.Commands
             )
         {
             _commandName = cmdName;
-            _methods = new List<MethodInfo>();
+            _commands = new List<Command>();
 
             _usageFunc = usage;
             _summaryFunc = summary;
@@ -46,16 +48,32 @@ namespace DisCore.Core.Commands
             Timeout = timeout ?? new TimeoutAttribute();
         }
 
-        public void AddMethod(MethodInfo info) => _methods.Add(info);
+        public void AddCommand(Command cmd) => _commands.Add(cmd);
 
-        public void RemoveMethod(MethodInfo info) => _methods.Remove(info);
+        public void RemoveCommand(Command cmd) => _commands.Remove(cmd);
 
-        public IEnumerable<MethodInfo> GetMethods() => _methods;
+        public IEnumerable<Command>  GetCommands() => _commands;
 
         public void AddSubCommand(CommandGroup cmdG) => _subCommandGroups.Add(cmdG);
 
-        public async Task<CommandResult> Call(DiscordMessage message)
+        public async Task<CommandResult> Call(List<CommandParameter[]> potentialArgs)
         {
+            foreach (var argSet in potentialArgs)
+            {
+                if (argSet.Length == 0)
+                    continue;
+                var firstItem = argSet.First();
+
+                if (firstItem.Type == typeof(string))
+                {
+                    string firstString = (String) firstItem.Object;
+                    var subItem = _subCommandGroups.FirstOrDefault(item => item._commandName == firstString);
+                    if (subItem != null)
+                    {
+                        return subItem.Call(argSet.Where(item => item != firstItem));
+                    }
+                }
+            }
 
             throw new NotImplementedException();
         }
