@@ -11,7 +11,7 @@ namespace DisCore.Core.Entities.Modules
 
         private readonly IModule _moduleObject;
 
-        private List<ICommand> _commands;
+        public List<CommandGroup> Commands;
 
         public String Summary => _moduleObject.Summary;
 

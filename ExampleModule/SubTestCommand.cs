@@ -15,17 +15,17 @@ namespace ExampleModule
     [Command(typeof(TestCommand), "subtest2")]
     public class SubTestCommand : ICommand
     {
-        public async Task<CommandResult> subTest(CommandContext ctx, string details) 
+        public async Task<CommandResult> subTest(CommandContext ctx, string details)
         {
             return await CommandResult.Success();
         }
 
-        public string Usage()
+        public async Task<CommandResult> Usage(CommandContext ctx)
         {
             throw new NotImplementedException();
         }
 
-        public string Summary()
+        public async Task<CommandResult> Summary(CommandContext ctx)
         {
             throw new NotImplementedException();
         }

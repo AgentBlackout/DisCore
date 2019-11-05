@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using DisCore.Core;
 using DisCore.Core.Commands;
 using DisCore.Core.Module;
@@ -19,25 +20,8 @@ namespace DisCore
         {
             DisCoreRoot core = new DisCoreRoot();
 
-            Modules = new List<IModule>();
-            Console.WriteLine("Hello World! Switching to Task Main");
 
-            List<string> files = FileHelper.GetDLLs(ModulePath).ToList();
-            foreach (var mod in files)
-            {
-                Assembly assembly = Assembly.LoadFile(mod);
-
-                foreach (Type t in assembly.GetTypes())
-                {
-                    var cmdG = CommandGroupFactory.GetCommandGroup(core, t);
-                }
-
-                IModule rootModule = (IModule)Activator.CreateInstance(AssemblyHelper.GetIModuleType(assembly));
-
-
-
-            }
-            
+            Task.WhenAll(new Task[] { core.Load(), core.Run()});
         }
     }
 }

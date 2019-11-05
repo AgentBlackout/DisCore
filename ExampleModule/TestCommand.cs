@@ -6,6 +6,7 @@ using DisCore.Core.Commands.Timeouts;
 using DisCore.Core.Permissions;
 using DisCore.Core;
 using DisCore.Core.Entities.Commands;
+using DisCore.Helpers;
 
 namespace ExampleModule
 {
@@ -40,6 +41,8 @@ namespace ExampleModule
             if (details.Length < 5)
                 return await CommandResult.BadArgs("Needs to be longer than 5 chars");
 
+            await cmd.Reply("Hello "+MessageHelper.StipMentions(details));
+
             //Timeout changes
             Timeout.SetTimeout(TimeSpan.FromSeconds(30));
 
@@ -55,12 +58,12 @@ namespace ExampleModule
             return await CommandResult.Success();
         }
 
-        public string Usage()
+        public async Task<CommandResult> Usage(CommandContext ctx)
         {
             throw new System.NotImplementedException();
         }
 
-        public string Summary()
+        public async Task<CommandResult> Summary(CommandContext ctx)
         {
             throw new System.NotImplementedException();
         }
