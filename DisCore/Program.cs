@@ -13,15 +13,11 @@ namespace DisCore
 {
     class Program
     {
-        public const string ModulePath = @".\modules\";
-
-        public static List<IModule> Modules;
         static void Main(string[] args)
         {
             DisCoreRoot core = new DisCoreRoot();
 
-
-            Task.WhenAll(new Task[] { core.Load(), core.Run()});
+            Task.WaitAll(new Task[] {core.Run()});
         }
     }
 }

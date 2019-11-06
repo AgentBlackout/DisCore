@@ -16,9 +16,15 @@ namespace DisCore.Core.Config
         public DConfig(string path)
         {
             if (!File.Exists(path))
-                throw new FileNotFoundException(path);
+                InitialiseConfig(path);
 
             _configFile = path;
+        }
+
+        private void InitialiseConfig(string path)
+        {
+            //TODO: Finish
+            File.WriteAllText(path, "{}");
         }
 
         public Task<T> Get<T>(string key)

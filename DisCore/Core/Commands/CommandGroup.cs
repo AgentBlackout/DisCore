@@ -17,28 +17,36 @@ namespace DisCore.Core.Commands
         private readonly ICommandParser _parser;
 
         private readonly string _commandName;
-        private List<Command> _commands;
+        private readonly List<Command> _commands;
 
-        private List<CommandGroup> _subCommandGroups;
+        private readonly List<CommandGroup> _subCommandGroups;
 
-        private Func<CommandContext, Task<CommandResult>> _usageFunc;
-        private Func<CommandContext, Task<CommandResult>> _summaryFunc;
+        private readonly Func<CommandContext, Task<CommandResult>> _usageFunc;
+        private readonly Func<CommandContext, Task<CommandResult>> _summaryFunc;
 
+        public CommandAttribute CommandAttribute;
         public TimeoutAttribute Timeout;
         public RequiredPermissions RequiredPermissions;
 
+        public bool IsSubGroup => CommandAttribute.Parent != null;
+
+        public String CommandName => _commandName;
 
         public CommandGroup(
             string cmdName,
             Func<CommandContext, Task<CommandResult>> usage,
             Func<CommandContext, Task<CommandResult>> summary,
+            CommandAttribute commandAttribute,
             RequiredPermissions perms = null,
             TimeoutAttribute timeout = null
             )
         {
             _commandName = cmdName;
             _commands = new List<Command>();
+            _subCommandGroups = new List<CommandGroup>();
 
+            CommandAttribute = commandAttribute ?? throw new ArgumentNullException(nameof(commandAttribute));
+            
             _usageFunc = usage;
             _summaryFunc = summary;
 
@@ -48,32 +56,18 @@ namespace DisCore.Core.Commands
             Timeout = timeout ?? new TimeoutAttribute();
         }
 
+        public List<CommandGroup> GetSubCommands() => _subCommandGroups;
+
         public void AddCommand(Command cmd) => _commands.Add(cmd);
 
         public void RemoveCommand(Command cmd) => _commands.Remove(cmd);
 
-        public IEnumerable<Command>  GetCommands() => _commands;
+        public IEnumerable<Command> GetCommands() => _commands;
 
         public void AddSubCommand(CommandGroup cmdG) => _subCommandGroups.Add(cmdG);
 
         public async Task<CommandResult> Call(List<CommandParameter[]> potentialArgs)
         {
-            foreach (var argSet in potentialArgs)
-            {
-                if (argSet.Length == 0)
-                    continue;
-                var firstItem = argSet.First();
-
-                if (firstItem.Type == typeof(string))
-                {
-                    string firstString = (String) firstItem.Object;
-                    var subItem = _subCommandGroups.FirstOrDefault(item => item._commandName == firstString);
-                    if (subItem != null)
-                    {
-                        return subItem.Call(argSet.Where(item => item != firstItem));
-                    }
-                }
-            }
 
             throw new NotImplementedException();
         }

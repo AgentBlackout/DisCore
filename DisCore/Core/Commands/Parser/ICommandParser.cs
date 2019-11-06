@@ -7,6 +7,6 @@ namespace DisCore.Core.Commands.Parser
 {
     public interface ICommandParser
     {
-        List<CommandParameter[]> ParseArgs(CommandGroup masterGroup, DiscordMessage message);
+        (Command, CommandParameter[]) GetCommandAndParameters(CommandGroup masterGroup, DiscordMessage message);
     }
 }

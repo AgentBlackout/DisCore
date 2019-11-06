@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using DisCore.Core.Commands;
@@ -23,14 +24,14 @@ namespace DisCore.Core
 
         public DConfig Config;
 
-        public List<DiscordShardedClient> Shards; 
+        public List<DiscordShardedClient> Shards;
 
         public IPermissionManager PermManager;
         public ITimeoutHandler TimeoutHandler;
 
         public ILogHandler LogHandler;
 
-        private List<Entities.Modules.Module> Modules;
+        public List<Entities.Modules.Module> Modules;
 
         public DisCoreRoot()
         {
@@ -69,21 +70,26 @@ namespace DisCore.Core
                     continue;
                 }
 
-                IModule modInstance = (IModule) Activator.CreateInstance(moduleType);
+                IModule modInstance = (IModule)Activator.CreateInstance(moduleType);
 
-                List<CommandGroup> commands = new List<CommandGroup>();
-                foreach (Type t in assembly.GetTypes())
+                List<CommandGroup> commands = (await CommandGroupFactory.GetCommandGroups(assembly)).ToList();
+
+                int subCommands = commands.Sum(item => item.GetSubCommands().Count);
+                await LogHandler.LogInfo(
+                    $"Module \"{modInstance.Name}\" defines {(commands.Count == 0 ? "zero" : commands.Count.ToString())} command{(commands.Count == 1 ? "" : "s")} ({subCommands} subcommand{(subCommands == 1 ? "s" : "")})"
+                    );
+
+                var module = new Entities.Modules.Module(modInstance)
                 {
-                    var group = CommandGroupFactory.GetCommandGroup(t);
-                }
+                    Commands = commands
+                };
 
-
-                var module = new Entities.Modules.Module(modInstance);
-                module.Commands = commands;
+                Modules.Add(module);
             }
         }
-        public Task Run()
+        public async Task Run()
         {
+            await Load();
             throw new NotImplementedException();
         }
 

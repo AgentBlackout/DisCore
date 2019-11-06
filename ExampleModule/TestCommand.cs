@@ -21,7 +21,7 @@ namespace ExampleModule
         public async Task<CommandResult> Test(CommandContext cmd)
         {
 
-            if (DisCoreRoot.Singleton.PermManager.GetPermissionLevel(cmd.Member, cmd.Guild) == PermissionLevels.Moderator)
+            if (_disCore.PermManager.GetPermissionLevel(cmd.Member, cmd.Guild) == PermissionLevels.Moderator)
             {
                 await cmd.Reply("You are a moderator");
             }
@@ -41,7 +41,7 @@ namespace ExampleModule
             if (details.Length < 5)
                 return await CommandResult.BadArgs("Needs to be longer than 5 chars");
 
-            await cmd.Reply("Hello "+MessageHelper.StipMentions(details));
+            await cmd.Reply("Hello " + MessageHelper.StipMentions(details));
 
             //Timeout changes
             Timeout.SetTimeout(TimeSpan.FromSeconds(30));
@@ -52,20 +52,26 @@ namespace ExampleModule
         //!test subtest
         [Timeout(PermissionLevels.Creator)]
         [RequiredPermissions(PermissionLevels.Administrator)]
-        [SubCommand("subtest1")]
-        public async Task<CommandResult> Subtest()
+        public async Task<CommandResult> Subtest(CommandContext ctx)
         {
+            await ctx.Reply("This is an admin-only command, which has a timeout, for no logical reason.");
             return await CommandResult.Success();
         }
 
+        //This will be triggered by returning CommandResult.BadArgs()
         public async Task<CommandResult> Usage(CommandContext ctx)
         {
-            throw new System.NotImplementedException();
+            await ctx.Reply("Usage: \n"+
+                            "!test\n" +
+                            "!test \"string\"");
+            return await CommandResult.Success();
         }
 
         public async Task<CommandResult> Summary(CommandContext ctx)
         {
-            throw new System.NotImplementedException();
+            await ctx.Reply("Summary of example command");
+            await Usage(ctx); //If you want to print the usage with the summary, personal choice. 
+            return await CommandResult.Success();
         }
     }
 }
