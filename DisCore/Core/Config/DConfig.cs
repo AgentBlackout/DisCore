@@ -16,15 +16,9 @@ namespace DisCore.Core.Config
         public DConfig(string path)
         {
             if (!File.Exists(path))
-                InitialiseConfig(path);
+                throw new FileNotFoundException(path);
 
             _configFile = path;
-        }
-
-        private void InitialiseConfig(string path)
-        {
-            //TODO: Finish
-            File.WriteAllText(path, "{}");
         }
 
         public Task<T> Get<T>(string key)
@@ -39,6 +33,7 @@ namespace DisCore.Core.Config
 
         public Task Remove(string key)
         {
+            _dirty = true;
             return Task.Run(() =>
             {
                 if (_dictionary.TryGetValue(key, out _))
@@ -49,6 +44,7 @@ namespace DisCore.Core.Config
 
         public Task Set(string key, object val)
         {
+            _dirty = true;
             return Task.Run(() =>
             {
                 if (_dictionary.TryGetValue(key, out var _))
@@ -63,17 +59,19 @@ namespace DisCore.Core.Config
             if (!_dirty) //Don't write it if it's not dirty
                 return;
 
-            var content = await File.ReadAllTextAsync(_configFile);
-            _dictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+            var json = JsonConvert.SerializeObject(_dictionary, new JsonSerializerSettings()
+            {
+                Formatting = Formatting.Indented,
+                /*TypeNameHandling = TypeNameHandling.Auto*/
+            });
+            await File.WriteAllTextAsync(_configFile, json);
+            _dirty = false;
         }
 
         public async Task Load()
         {
-            var json = JsonConvert.SerializeObject(_dictionary, new JsonSerializerSettings()
-            {
-                TypeNameHandling = TypeNameHandling.Auto
-            });
-            await File.WriteAllTextAsync(_configFile, json);
+            var content = await File.ReadAllTextAsync(_configFile);
+            _dictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
         }
     }
 }

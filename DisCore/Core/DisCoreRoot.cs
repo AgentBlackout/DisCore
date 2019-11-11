@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using DisCore.Core.Commands;
+using DisCore.Core.Commands.Parser;
 using DisCore.Core.Commands.Timeouts;
 using DisCore.Core.Config;
 using DisCore.Core.Entities;
@@ -29,9 +30,13 @@ namespace DisCore.Core
         public IPermissionManager PermManager;
         public ITimeoutHandler TimeoutHandler;
 
+        public ICommandParser Parser;
+
         public ILogHandler LogHandler;
 
-        public List<Entities.Modules.Module> Modules;
+        public List<Entities.Modules.Module> Modules => ModuleLoader.GetModules;
+
+        public readonly ModuleLoader ModuleLoader;
 
         public DisCoreRoot()
         {
@@ -40,70 +45,66 @@ namespace DisCore.Core
             PermManager = null;
             TimeoutHandler = null;
 
-            Modules = new List<Entities.Modules.Module>();
-
             Config = new DConfig("./config.json");
             LogHandler = new LogHandler();
+
+            ModuleLoader = new ModuleLoader(LogHandler);
         }
 
         public async Task Load()
         {
-            IEnumerable<string> dllLocations = FileHelper.GetDLLs("./modules");
+            await RootConfigHelper.InitConfig("./config.json");
+            await LoadLibraries();
+            await LoadModules();
+        }
+
+        private async Task LoadLibraries()
+        {
+            int loaded = 0;
+            IEnumerable<string> dllLocations = FileHelper.GetDLLs("./libraries");
             foreach (var fileLoc in dllLocations)
             {
+                var fileName = Path.GetFileName(fileLoc);
+
+                await LogHandler.LogDebug($"Loading library {fileName}");
+
                 Assembly assembly;
                 try
                 {
-                    assembly = TryOrLog<Assembly, Exception>(() => Assembly.LoadFile(fileLoc), LogHandler);
+                    assembly = Assembly.LoadFile(fileLoc);
                 }
                 catch (Exception e)
                 {
-                    await LogHandler.LogWarning($"Failed to load module {Path.GetFileName(fileLoc)} (Make sure it's up to date) - {e.Message}");
-                    continue;
+                    await LogHandler.LogWarning(
+                        $"Failed to load library {fileName} - {e.Message}");
+                    return;
                 }
 
-                Type moduleType = AssemblyHelper.GetIModuleType(assembly);
-                if (moduleType == null)
-                {
-                    await LogHandler.LogError(
-                        $"{Path.GetFileName(fileLoc)} does not contain a class definition which extends IModule");
-                    continue;
-                }
+                loaded++;
+            }
 
-                IModule modInstance = (IModule)Activator.CreateInstance(moduleType);
+            await LogHandler.LogInfo($"Loaded {loaded} out of {dllLocations.Count()} libraries");
+        }
 
-                List<CommandGroup> commands = (await CommandGroupFactory.GetCommandGroups(assembly)).ToList();
-
-                int subCommands = commands.Sum(item => item.GetSubCommands().Count);
-                await LogHandler.LogInfo(
-                    $"Module \"{modInstance.Name}\" defines {(commands.Count == 0 ? "zero" : commands.Count.ToString())} command{(commands.Count == 1 ? "" : "s")} ({subCommands} subcommand{(subCommands == 1 ? "s" : "")})"
-                    );
-
-                var module = new Entities.Modules.Module(modInstance)
-                {
-                    Commands = commands
-                };
-
-                Modules.Add(module);
+        private async Task LoadModules()
+        {
+            IEnumerable<string> dllLocations = FileHelper.GetDLLs("./modules");
+            foreach (var fileLoc in dllLocations)
+            {
+                bool result = await ModuleLoader.LoadModule(fileLoc);
+                if (result)
+                    await LogHandler.LogInfo($"Loaded {Path.GetFileName(fileLoc)} successfully.");
+                else
+                    await LogHandler.LogInfo($"Could not load {Path.GetFileName(fileLoc)}.");
             }
         }
+
+       
+
         public async Task Run()
         {
             await Load();
-            throw new NotImplementedException();
-        }
-
-        private static T TryOrLog<T, TU>(Func<T> func, ILogHandler logHandler) where TU : Exception
-        {
-            try
-            {
-                return func();
-            }
-            catch (TU e)
-            {
-                logHandler.LogError("", e);
-                throw;
-            }
+            
         }
 
     }

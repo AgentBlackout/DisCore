@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using DisCore.Core.Commands;
 using DisCore.Core.Module;
+using DisCore.Factories;
 
 namespace DisCore.Core.Entities.Modules
 {
     public class Module
     {
-        public readonly ModuleInfo Info;
+        public readonly ModuleInfo _info;
 
         private readonly IModule _moduleObject;
 
@@ -18,6 +19,8 @@ namespace DisCore.Core.Entities.Modules
         public Module(IModule modObject)
         {
             _moduleObject = modObject;
+            _info = ModuleInfoFactory.GetModuleInfo(_moduleObject);
+
         }
 
     }

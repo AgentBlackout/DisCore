@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using DisCore.Core;
 using DisCore.Core.Module;
+using DSharpPlus.Entities;
 
 namespace ExampleModule
 {
@@ -23,5 +24,9 @@ namespace ExampleModule
             await Task.Delay(200);
         }
 
+        public async Task OnLoadGuild(DiscordGuild guild)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

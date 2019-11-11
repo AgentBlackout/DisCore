@@ -9,5 +9,6 @@ namespace DisCore.Factories
         {
             return new ModuleInfo(module.Name, module.Version, module.Author);
         }
+
     }
 }

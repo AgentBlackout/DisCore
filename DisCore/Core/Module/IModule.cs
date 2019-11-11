@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DSharpPlus.Entities;
+using System;
 using System.Threading.Tasks;
 
 namespace DisCore.Core.Module
@@ -14,5 +15,8 @@ namespace DisCore.Core.Module
         Task OnLoad();
 
         Task OnUnload();
+
+        Task OnLoadGuild(DiscordGuild guild);
+
     }
 }
