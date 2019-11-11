@@ -53,7 +53,9 @@ namespace DisCore.Core
 
         public async Task Load()
         {
-            await RootConfigHelper.InitConfig("./config.json");
+            var helper = new RootConfigHelper(Config);
+            await Config.Load();
+            var longs = await helper.GetCreatorIDs();
             await LoadLibraries();
             await LoadModules();
         }

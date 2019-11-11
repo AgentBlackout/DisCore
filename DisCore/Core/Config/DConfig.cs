@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace DisCore.Core.Config
 {
     public class DConfig : IConfig
     {
-        private Dictionary<string, object> _dictionary = new Dictionary<string, object>();
+        private JObject rootObject = new JObject();
         private bool _dirty = false;
 
         private readonly string _configFile;
@@ -25,8 +26,8 @@ namespace DisCore.Core.Config
         {
             return Task.Run(() =>
             {
-                if (_dictionary.TryGetValue(key, out var val))
-                    return (T)val;
+                if (rootObject.TryGetValue(key, out var res))
+                    return res.ToObject<T>();
                 return default;
             });
         }
@@ -36,21 +37,19 @@ namespace DisCore.Core.Config
             _dirty = true;
             return Task.Run(() =>
             {
-                if (_dictionary.TryGetValue(key, out _))
-                    _dictionary.Remove(key);
-                
+                if (rootObject.TryGetValue(key, out _))
+                    rootObject.Remove(key);
+
             });
         }
 
-        public Task Set(string key, object val)
+        public async Task Set(string key, object val)
         {
             _dirty = true;
-            return Task.Run(() =>
+            await Remove(key);
+            await Task.Run(() =>
             {
-                if (_dictionary.TryGetValue(key, out var _))
-                    _dictionary.Remove(key);
-
-                _dictionary.Add(key, val);
+                rootObject.Add(key, JToken.FromObject(val));
             });
         }
 
@@ -59,10 +58,10 @@ namespace DisCore.Core.Config
             if (!_dirty) //Don't write it if it's not dirty
                 return;
 
-            var json = JsonConvert.SerializeObject(_dictionary, new JsonSerializerSettings()
+            var json = JsonConvert.SerializeObject(rootObject, new JsonSerializerSettings()
             {
                 Formatting = Formatting.Indented,
-                /*TypeNameHandling = TypeNameHandling.Auto*/
+                /*typeNameHandling = TypeNameHandling.All*/
             });
             await File.WriteAllTextAsync(_configFile, json);
             _dirty = false;
@@ -71,7 +70,7 @@ namespace DisCore.Core.Config
         public async Task Load()
         {
             var content = await File.ReadAllTextAsync(_configFile);
-            _dictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+            rootObject = JsonConvert.DeserializeObject<JObject>(content);
         }
     }
 }

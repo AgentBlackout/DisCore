@@ -1,24 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using DisCore.Core.Config;
 
 namespace DisCore.Helpers
 {
-    public static class RootConfigHelper
+    public class RootConfigHelper
     {
-        public static async Task InitConfig(String filepath)
+        public const string Token = "token";
+        public const string Owners = "owners";
+
+        private readonly IConfig _conf;
+
+        public RootConfigHelper(IConfig config)
         {
-            if (!File.Exists(filepath))
-                File.Create(filepath);
+            _conf = config ?? throw new ArgumentNullException(nameof(config));
+        }
 
-            DConfig conf =  new DConfig(filepath);
-            await conf.Set("token", "YOUR-AUTH-TOKEN-HERE");
-            await conf.Set("owners", new List<long>() {123, 456});
+        public async Task<string> GetToken()
+        {
+            return await _conf.Get<string>(Token);
+        }
 
-            await conf.Save();
+        public async Task<IEnumerable<ulong>> GetCreatorIDs()
+        {
+            return await _conf.Get<ulong[]>(Owners);
+        }
+
+        public async Task InitConfig()
+        {
+            await _conf.Set("token", "abc-123-abc");
+            await _conf.Set("owners", new long[] { 123, 1441, 999 });
+
+            await _conf.Save();
         }
     }
 }
