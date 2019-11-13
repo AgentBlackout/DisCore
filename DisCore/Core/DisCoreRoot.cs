@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -11,6 +12,7 @@ using DisCore.Core.Commands.Timeouts;
 using DisCore.Core.Config;
 using DisCore.Core.Config.Json;
 using DisCore.Core.Entities;
+using DisCore.Core.Entities.Modules;
 using DisCore.Core.Logging;
 using DisCore.Core.Module;
 using DisCore.Core.Permissions;
@@ -35,7 +37,7 @@ namespace DisCore.Core
 
         public ILogHandler LogHandler;
 
-        public List<Entities.Modules.DLLModule> Modules => ModuleLoader.GetModules;
+        public List<DllModule> Modules => ModuleLoader.GetModules().ToList();
 
         public readonly ModuleLoader ModuleLoader;
 
@@ -73,7 +75,7 @@ namespace DisCore.Core
         private async Task LoadLibraries()
         {
             int loaded = 0;
-            IEnumerable<string> dllLocations = FileHelper.GetDLLs("./libraries");
+            IEnumerable<string> dllLocations = FileHelper.GetDlLs("./libraries");
             foreach (var fileLoc in dllLocations)
             {
                 var fileName = Path.GetFileName(fileLoc);
@@ -100,10 +102,10 @@ namespace DisCore.Core
 
         private async Task LoadModules()
         {
-            IEnumerable<string> dllLocations = FileHelper.GetDLLs("./modules");
+            IEnumerable<string> dllLocations = FileHelper.GetDlLs("./modules");
             foreach (var fileLoc in dllLocations)
             {
-                bool result = await ModuleLoader.LoadModule(fileLoc);
+                var (result, reason) = await ModuleLoader.LoadModule(fileLoc);
                 if (result)
                     await LogHandler.LogInfo($"Loaded {Path.GetFileName(fileLoc)} successfully.");
                 else
@@ -111,12 +113,12 @@ namespace DisCore.Core
             }
         }
 
-       
+
 
         public async Task Run()
         {
             await Load();
-            
+
         }
 
     }
