@@ -21,7 +21,7 @@ namespace DisCore.Core.Entities.Commands
 
         public DiscordUser Author => (DiscordUser)Member ?? User;
 
-        public bool IsDM => Channel.IsPrivate;
+        public bool IsDm => Channel.IsPrivate;
 
         public async Task<DiscordMessage> Reply(string content = null, DiscordEmbed embed = null, bool tts = false) => await Channel.SendMessageAsync(content, tts, embed);
 

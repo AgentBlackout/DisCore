@@ -13,14 +13,14 @@ namespace DisCore.Core.Commands
 
     public class CommandResult
     {
-        private CommandResultType resultType;
+        private CommandResultType _resultType;
 
-        private object result;
+        private object _result;
 
         public CommandResult(CommandResultType resType, object res = null)
         {
-            resultType = resType;
-            result = res;
+            _resultType = resType;
+            _result = res;
         }
 
         public static async Task<CommandResult> Success(object res = null)

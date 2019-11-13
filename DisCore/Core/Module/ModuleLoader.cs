@@ -5,26 +5,27 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using DisCore.Core.Commands;
+using DisCore.Core.Entities.Modules;
 using DisCore.Core.Logging;
 using DisCore.Factories;
 using DisCore.Helpers;
 
 namespace DisCore.Core.Module
 {
-    public class ModuleLoader
+    public class ModuleLoader : IModuleLoader
     {
         private readonly ILogHandler _logHandler;
-        private readonly List<Entities.Modules.Module> _modules;
+        private readonly List<DllModule> _modules;
 
-        public List<Entities.Modules.Module> GetModules => _modules;
+        public IEnumerable<DllModule> GetModules() => _modules;
 
         public ModuleLoader(ILogHandler logHandler)
         {
             _logHandler = logHandler;
-            _modules = new List<Entities.Modules.Module>();
+            _modules = new List<DllModule>();
         }
 
-        public async Task<bool> LoadModule(string filepath)
+        public async Task<(bool Success, string Reason)> LoadModule(string filepath)
         {
             try
             {
@@ -33,10 +34,10 @@ namespace DisCore.Core.Module
             catch (Exception e)
             {
                 await _logHandler.LogError($"Uncaught error trying to load module {filepath}");
-                return false;
+                return (false, e.Message);
             }
 
-            return true;
+            return (true, "Success");
         }
 
         private async Task TryLoadModule(string filepath)
@@ -82,7 +83,7 @@ namespace DisCore.Core.Module
                         $"Module \"{modInstance.Name}\" defines {(commands.Count == 0 ? "zero" : commands.Count.ToString())} command{(commands.Count == 1 ? "" : "s")} ({subCommands} subcommand{(subCommands == 1 ? "s" : "")})"
                     );
 
-            var module = new Entities.Modules.Module(modInstance)
+            var module = new Entities.Modules.DllModule(modInstance)
             {
                 Commands = commands
             };
@@ -110,5 +111,7 @@ namespace DisCore.Core.Module
                 throw;
             }
         }
+
+       
     }
 }

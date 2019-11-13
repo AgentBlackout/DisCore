@@ -9,6 +9,7 @@ using DisCore.Core.Commands;
 using DisCore.Core.Commands.Parser;
 using DisCore.Core.Commands.Timeouts;
 using DisCore.Core.Config;
+using DisCore.Core.Config.Json;
 using DisCore.Core.Entities;
 using DisCore.Core.Logging;
 using DisCore.Core.Module;
@@ -23,7 +24,7 @@ namespace DisCore.Core
     {
         public static DisCoreRoot Singleton { get; private set; }
 
-        public DConfig Config;
+        public JsonConfig Config;
 
         public List<DiscordShardedClient> Shards;
 
@@ -34,7 +35,7 @@ namespace DisCore.Core
 
         public ILogHandler LogHandler;
 
-        public List<Entities.Modules.Module> Modules => ModuleLoader.GetModules;
+        public List<Entities.Modules.DLLModule> Modules => ModuleLoader.GetModules;
 
         public readonly ModuleLoader ModuleLoader;
 
@@ -45,17 +46,26 @@ namespace DisCore.Core
             PermManager = null;
             TimeoutHandler = null;
 
-            Config = new DConfig("./config.json");
+            Config = new JsonConfig("./config.json");
             LogHandler = new LogHandler();
 
             ModuleLoader = new ModuleLoader(LogHandler);
+        }
+
+        public async Task CheckConfig()
+        {
+            var rootHelper = new RootConfigHelper(Config);
+
+            string token = await rootHelper.GetToken();
         }
 
         public async Task Load()
         {
             var helper = new RootConfigHelper(Config);
             await Config.Load();
-            var longs = await helper.GetCreatorIDs();
+
+            await CheckConfig();
+
             await LoadLibraries();
             await LoadModules();
         }

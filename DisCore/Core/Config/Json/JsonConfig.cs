@@ -1,35 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace DisCore.Core.Config
+namespace DisCore.Core.Config.Json
 {
-    public class DConfig : IConfig
+    public class JsonConfig : IConfig
     {
-        private JObject rootObject = new JObject();
+        private JObject _rootObject = new JObject();
         private bool _dirty = false;
 
         private readonly string _configFile;
 
-        public DConfig(string path)
+        public JsonConfig(string path)
         {
-            if (!File.Exists(path))
-                throw new FileNotFoundException(path);
-
             _configFile = path;
         }
 
         public Task<T> Get<T>(string key)
         {
-            return Task.Run(() =>
-            {
-                if (rootObject.TryGetValue(key, out var res))
-                    return res.ToObject<T>();
-                return default;
-            });
+            return Task.Run(() => _rootObject.TryGetValue(key, out var res) ? res.ToObject<T>() : default);
         }
 
         public Task Remove(string key)
@@ -37,8 +27,8 @@ namespace DisCore.Core.Config
             _dirty = true;
             return Task.Run(() =>
             {
-                if (rootObject.TryGetValue(key, out _))
-                    rootObject.Remove(key);
+                if (_rootObject.TryGetValue(key, out _))
+                    _rootObject.Remove(key);
 
             });
         }
@@ -49,7 +39,7 @@ namespace DisCore.Core.Config
             await Remove(key);
             await Task.Run(() =>
             {
-                rootObject.Add(key, JToken.FromObject(val));
+                _rootObject.Add(key, JToken.FromObject(val));
             });
         }
 
@@ -58,7 +48,7 @@ namespace DisCore.Core.Config
             if (!_dirty) //Don't write it if it's not dirty
                 return;
 
-            var json = JsonConvert.SerializeObject(rootObject, new JsonSerializerSettings()
+            var json = JsonConvert.SerializeObject(_rootObject, new JsonSerializerSettings()
             {
                 Formatting = Formatting.Indented,
                 /*typeNameHandling = TypeNameHandling.All*/
@@ -69,8 +59,11 @@ namespace DisCore.Core.Config
 
         public async Task Load()
         {
+            if (!File.Exists(_configFile))
+                throw new FileNotFoundException(_configFile);
+
             var content = await File.ReadAllTextAsync(_configFile);
-            rootObject = JsonConvert.DeserializeObject<JObject>(content);
+            _rootObject = JsonConvert.DeserializeObject<JObject>(content);
         }
     }
 }

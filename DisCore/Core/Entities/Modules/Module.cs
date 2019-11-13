@@ -6,9 +6,9 @@ using DisCore.Factories;
 
 namespace DisCore.Core.Entities.Modules
 {
-    public class Module
+    public class DllModule
     {
-        public readonly ModuleInfo _info;
+        public readonly ModuleInfo Info;
 
         private readonly IModule _moduleObject;
 
@@ -16,10 +16,10 @@ namespace DisCore.Core.Entities.Modules
 
         public String Summary => _moduleObject.Summary;
 
-        public Module(IModule modObject)
+        public DllModule(IModule modObject)
         {
             _moduleObject = modObject;
-            _info = ModuleInfoFactory.GetModuleInfo(_moduleObject);
+            Info = ModuleInfoFactory.GetModuleInfo(_moduleObject);
 
         }
 
