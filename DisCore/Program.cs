@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Threading.Tasks;
 using DisCore.Core;
 using DisCore.Core.Commands;
-using DisCore.Core.Module;
 using DisCore.Factories;
 using DisCore.Helpers;
 

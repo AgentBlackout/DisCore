@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using DisCore.Core.Commands;
-using DisCore.Core.Module;
+using DisCore.Core.Loaders.Module;
 using DisCore.Factories;
 
 namespace DisCore.Core.Entities.Modules

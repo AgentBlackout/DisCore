@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using DisCore.Core.Config;
+using DisCore.Core.Config.Json;
 
 namespace DisCore.Helpers
 {
@@ -12,6 +13,15 @@ namespace DisCore.Helpers
         public const string Owners = "owners";
 
         private readonly IConfig _conf;
+
+        public static async Task<JsonConfig> LoadOrInit(string fileLoc)
+        {
+            var conf = new RootConfigHelper(new JsonConfig(fileLoc));
+            if (!File.Exists(fileLoc))
+                await conf.InitConfig();
+            await conf._conf.Load();
+            return (JsonConfig)conf._conf;
+        }
 
         public RootConfigHelper(IConfig config)
         {

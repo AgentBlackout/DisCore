@@ -1,5 +1,5 @@
 ﻿using DisCore.Core.Entities.Modules;
-using DisCore.Core.Module;
+using DisCore.Core.Loaders.Module;
 
 namespace DisCore.Factories
 {

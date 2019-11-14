@@ -5,24 +5,66 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using DisCore.Core.Commands;
+using DisCore.Core.Config;
 using DisCore.Core.Entities.Modules;
 using DisCore.Core.Logging;
 using DisCore.Factories;
 using DisCore.Helpers;
 
-namespace DisCore.Core.Module
+namespace DisCore.Core.Loaders.Module
 {
     public class ModuleLoader : IModuleLoader
     {
+
+        private readonly AppDomain _domain;
         private readonly ILogHandler _logHandler;
+        private readonly string _modulesLocation;
+
+        private readonly IConfig _config;
+
         private readonly List<DllModule> _modules;
 
         public IEnumerable<DllModule> GetModules() => _modules;
 
-        public ModuleLoader(ILogHandler logHandler)
+        public ModuleLoader(string moduleLocation, IConfig config, ILogHandler logHandler)
         {
+            _modulesLocation = moduleLocation;
+            _config = config;
+
             _logHandler = logHandler;
             _modules = new List<DllModule>();
+
+            _domain = AppDomain.CurrentDomain;
+        }
+
+        public async Task<int> LoadModules()
+        {
+            if (_modules.Any())
+                throw new InvalidOperationException("Modules already loaded");
+
+            IEnumerable<string> locations = FileHelper.GetDLLs(_modulesLocation);
+            foreach (string location in locations)
+            {
+                bool success;
+                string reason;
+                try
+                {
+                    (success, reason) = await LoadModule(location);
+                }
+                catch (Exception e)
+                {
+                    success = false;
+                    reason = e.Message;
+                }
+
+                if (success)
+                    await _logHandler.LogInfo($"Loaded {location} module successfully");
+                else
+                    await _logHandler.LogWarning($"Failed to failed to load {location} ({reason})");
+
+            }
+
+            return _modules.Count();
         }
 
         public async Task<(bool Success, string Reason)> LoadModule(string filepath)
@@ -33,7 +75,6 @@ namespace DisCore.Core.Module
             }
             catch (Exception e)
             {
-                await _logHandler.LogError($"Uncaught error trying to load module {filepath}");
                 return (false, e.Message);
             }
 
@@ -44,28 +85,10 @@ namespace DisCore.Core.Module
         {
             var fileName = Path.GetFileName(filepath);
             await _logHandler.LogDebug($"Trying to load DLL {fileName}");
-            Assembly assembly;
-            try
-            {
-                assembly = await TryOrLog<Assembly, Exception>(async () => Assembly.LoadFile(filepath), _logHandler);
-            }
-            catch (Exception e)
-            {
-                await _logHandler.LogWarning(
-                    $"Failed to load module {fileName} (Make sure it's up to date) - {e.Message}");
-                return;
-            }
 
-            Type moduleType;
-            try
-            {
-                moduleType = await TryOrLog<Type, ReflectionTypeLoadException>(async () => AssemblyHelper.GetIModuleType(assembly), _logHandler);
-            }
-            catch (ReflectionTypeLoadException e)
-            {
-                await _logHandler.LogWarning($"Failed to load {fileName} (it's probably out of date)");
-                return;
-            }
+            Assembly assembly = await TryOrLog<Assembly, Exception>(async () => await AssemblyHelper.ReadAndLoad(filepath), _logHandler);
+
+            Type moduleType = await TryOrLog<Type, ReflectionTypeLoadException>(async () => AssemblyHelper.GetIModuleType(assembly), _logHandler);
 
             if (moduleType == null)
             {
@@ -112,6 +135,6 @@ namespace DisCore.Core.Module
             }
         }
 
-       
+
     }
 }

@@ -13,8 +13,9 @@ using DisCore.Core.Config;
 using DisCore.Core.Config.Json;
 using DisCore.Core.Entities;
 using DisCore.Core.Entities.Modules;
+using DisCore.Core.Loaders.Library;
+using DisCore.Core.Loaders.Module;
 using DisCore.Core.Logging;
-using DisCore.Core.Module;
 using DisCore.Core.Permissions;
 using DisCore.Factories;
 using DisCore.Helpers;
@@ -37,9 +38,10 @@ namespace DisCore.Core
 
         public ILogHandler LogHandler;
 
-        public List<DllModule> Modules => ModuleLoader.GetModules().ToList();
-
         public readonly ModuleLoader ModuleLoader;
+        public readonly LibraryLoader LibraryLoader;
+
+        public List<DllModule> Modules => ModuleLoader.GetModules().ToList();
 
         public DisCoreRoot()
         {
@@ -48,10 +50,9 @@ namespace DisCore.Core
             PermManager = null;
             TimeoutHandler = null;
 
-            Config = new JsonConfig("./config.json");
             LogHandler = new LogHandler();
 
-            ModuleLoader = new ModuleLoader(LogHandler);
+            ModuleLoader = new ModuleLoader("./modules",Config, LogHandler);
         }
 
         public async Task CheckConfig()
@@ -63,10 +64,7 @@ namespace DisCore.Core
 
         public async Task Load()
         {
-            var helper = new RootConfigHelper(Config);
-            await Config.Load();
-
-            await CheckConfig();
+            Config = await RootConfigHelper.LoadOrInit("./config.json");
 
             await LoadLibraries();
             await LoadModules();
@@ -74,35 +72,13 @@ namespace DisCore.Core
 
         private async Task LoadLibraries()
         {
-            int loaded = 0;
-            IEnumerable<string> dllLocations = FileHelper.GetDlLs("./libraries");
-            foreach (var fileLoc in dllLocations)
-            {
-                var fileName = Path.GetFileName(fileLoc);
-
-                await LogHandler.LogDebug($"Loading library {fileName}");
-
-                Assembly assembly;
-                try
-                {
-                    assembly = Assembly.LoadFile(fileLoc);
-                }
-                catch (Exception e)
-                {
-                    await LogHandler.LogWarning(
-                        $"Failed to load library {fileName} - {e.Message}");
-                    return;
-                }
-
-                loaded++;
-            }
-
-            await LogHandler.LogInfo($"Loaded {loaded} out of {dllLocations.Count()} libraries");
+            IEnumerable<string> dllLocations = FileHelper.GetDLLs("./libraries");
+            
         }
 
         private async Task LoadModules()
         {
-            IEnumerable<string> dllLocations = FileHelper.GetDlLs("./modules");
+            IEnumerable<string> dllLocations = FileHelper.GetDLLs("./modules");
             foreach (var fileLoc in dllLocations)
             {
                 var (result, reason) = await ModuleLoader.LoadModule(fileLoc);

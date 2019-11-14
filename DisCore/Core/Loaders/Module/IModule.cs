@@ -1,8 +1,8 @@
-﻿using DSharpPlus.Entities;
-using System;
+﻿using System;
 using System.Threading.Tasks;
+using DSharpPlus.Entities;
 
-namespace DisCore.Core.Module
+namespace DisCore.Core.Loaders.Module
 {
     public interface IModule
     {
