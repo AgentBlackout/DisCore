@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Threading.Tasks;
+using DisCore.Api.Logging;
 
 namespace DisCore.Core.Logging
 {
-    public class LogHandler : ILogHandler
+    public class ConsoleLogHandler : ILogHandler
     {
         public Task Log(LogSeverity severity, string message, Exception e = null)
         {
             Console.WriteLine(
-                $"{DateTime.UtcNow} [{Enum.GetName(typeof(LogSeverity), severity).ToUpper()}] {(string.IsNullOrEmpty(message) ? "" : message)}{(e != null ? ($" ( {e.ToString()} )") : "")}");
+                $"{DateTime.UtcNow} [{EnumAsString(severity).ToUpper()}] {(string.IsNullOrEmpty(message) ? "" : message)}{(e != null ? ($" ( {e.ToString()} )") : "")}");
             return Task.CompletedTask;
         }
 
@@ -21,5 +22,8 @@ namespace DisCore.Core.Logging
         public Task LogError(string message, Exception e = null) => Log(LogSeverity.Error, message, e);
 
         public Task LogFatal(string message, Exception e = null) => Log(LogSeverity.Fatal, message, e);
+
+        private string EnumAsString(Enum e) => Enum.GetName(e.GetType(), e);
+
     }
 }

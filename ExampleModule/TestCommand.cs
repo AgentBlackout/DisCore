@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using DisCore.Core.Commands;
-using DisCore.Core.Commands.Timeouts;
-using DisCore.Core.Permissions;
-using DisCore.Core;
-using DisCore.Core.Entities.Commands;
+using DisCore.Api.Commands;
+using DisCore.Api.Commands.Timeout;
+using DisCore.Api.Permissions;
 using DisCore.Helpers;
 
 namespace ExampleModule
@@ -15,13 +12,11 @@ namespace ExampleModule
     [Command("test")]
     public class TestCommand : ICommand
     {
-        private readonly DisCoreRoot _disCore = DisCoreRoot.Singleton;
-
         //!test
         public async Task<CommandResult> Test(CommandContext cmd)
         {
 
-            if (_disCore.PermManager.GetPermissionLevel(cmd.Member, cmd.Guild) == PermissionLevels.Moderator)
+            if (cmd.Instance.PermissionHandler.GetPermissionLevel(cmd.Member, cmd.Guild) == PermissionLevels.Moderator)
             {
                 await cmd.Reply("You are a moderator");
             }

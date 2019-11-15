@@ -1,8 +1,7 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
+using DisCore.Api.Commands.Timeout;
+using DisCore.Api.Permissions;
 using DisCore.Core.Commands;
-using DisCore.Core.Commands.Timeouts;
-using DisCore.Core.Permissions;
 
 namespace DisCore.Factories
 {

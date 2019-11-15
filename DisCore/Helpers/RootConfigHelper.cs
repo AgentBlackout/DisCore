@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using DisCore.Api.Config;
 using DisCore.Core.Config;
 using DisCore.Core.Config.Json;
 

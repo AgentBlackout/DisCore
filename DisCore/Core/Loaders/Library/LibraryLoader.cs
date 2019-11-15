@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
-using DisCore.Core.Logging;
+using DisCore.Api.Logging;
 using DisCore.Helpers;
 
 namespace DisCore.Core.Loaders.Library
@@ -19,18 +18,34 @@ namespace DisCore.Core.Loaders.Library
 
         private readonly List<Assembly> _assemblies;
 
+        public IEnumerable<Assembly> GetLibraries() => _assemblies;
+        public async Task<LoadResult> LoadLibrary(string fileLoc)
+        {
+            throw new NotImplementedException();
+        }
+
+        async Task<LoadResult> ILibraryLoader.UnloadLibrary(string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        async Task<LoadResult> ILibraryLoader.UnloadLibrary(Assembly a)
+        {
+            throw new NotImplementedException();
+        }
+
         public LibraryLoader(string location, ILogHandler logHandler)
         {
             _configLocation = location;
-            _logHandler = _logHandler ?? throw new ArgumentNullException(nameof(_logHandler));
+            _logHandler = logHandler ?? throw new ArgumentNullException(nameof(logHandler));
 
             _assemblies = new List<Assembly>();
             _domain = AppDomain.CurrentDomain;
         }
 
-        public IEnumerable<Assembly> GetLibraries() => _assemblies;
 
-        public async Task LoadLibrary(string fileLoc)
+
+        private async Task TryLoadLibrary(string fileLoc)
         {
             var fileName = Path.GetFileName(fileLoc);
 
@@ -39,25 +54,6 @@ namespace DisCore.Core.Loaders.Library
             Assembly assembly = await AssemblyHelper.ReadAndLoad(fileLoc);
 
             _assemblies.Add(assembly);
-        }
-
-        public async Task LoadLibraries()
-        {
-            IEnumerable<string> dllLocations = FileHelper.GetDLLs("./libraries");
-            foreach (var fileLoc in dllLocations)
-            {
-                try
-                {
-                    await LoadLibrary(fileLoc);
-                }
-                catch (Exception e)
-                {
-                    await _logHandler.LogWarning(
-                        $"Failed to load library {fileLoc} - {e.Message}");
-                }
-
-                await _logHandler.LogInfo($"Loaded {fileLoc} successfully");
-            }
         }
 
         public async Task UnloadLibrary(string name)

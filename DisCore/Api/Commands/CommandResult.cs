@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace DisCore.Core.Commands
+namespace DisCore.Api.Commands
 {
     public enum CommandResultType
     {

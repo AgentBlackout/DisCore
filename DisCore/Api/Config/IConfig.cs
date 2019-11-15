@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace DisCore.Core.Config
+namespace DisCore.Api.Config
 {
     public interface IConfig
     {

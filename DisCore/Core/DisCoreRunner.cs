@@ -1,37 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
-using DisCore.Core.Commands;
-using DisCore.Core.Commands.Parser;
-using DisCore.Core.Commands.Timeouts;
-using DisCore.Core.Config;
+using DisCore.Api.Commands;
+using DisCore.Api.Commands.Timeout;
+using DisCore.Api.Logging;
+using DisCore.Api.Permissions;
 using DisCore.Core.Config.Json;
-using DisCore.Core.Entities;
 using DisCore.Core.Entities.Modules;
+using DisCore.Core.Loaders;
 using DisCore.Core.Loaders.Library;
 using DisCore.Core.Loaders.Module;
 using DisCore.Core.Logging;
-using DisCore.Core.Permissions;
-using DisCore.Factories;
 using DisCore.Helpers;
 using DSharpPlus;
 
 namespace DisCore.Core
 {
-    public sealed class DisCoreRoot
+    public sealed class DisCoreRunner
     {
-        public static DisCoreRoot Singleton { get; private set; }
-
         public JsonConfig Config;
 
         public List<DiscordShardedClient> Shards;
 
-        public IPermissionManager PermManager;
+        public IPermissionHandler PermManager;
         public ITimeoutHandler TimeoutHandler;
 
         public ICommandParser Parser;
@@ -43,23 +35,16 @@ namespace DisCore.Core
 
         public List<DllModule> Modules => ModuleLoader.GetModules().ToList();
 
-        public DisCoreRoot()
+        public DisCoreRunner()
         {
-            Singleton = this;
 
             PermManager = null;
             TimeoutHandler = null;
 
-            LogHandler = new LogHandler();
+            LogHandler = new ConsoleLogHandler();
 
-            ModuleLoader = new ModuleLoader("./modules",Config, LogHandler);
-        }
-
-        public async Task CheckConfig()
-        {
-            var rootHelper = new RootConfigHelper(Config);
-
-            string token = await rootHelper.GetToken();
+            ModuleLoader = new ModuleLoader("./modules", Config, LogHandler);
+            LibraryLoader = new LibraryLoader("./library", LogHandler);
         }
 
         public async Task Load()
@@ -73,7 +58,14 @@ namespace DisCore.Core
         private async Task LoadLibraries()
         {
             IEnumerable<string> dllLocations = FileHelper.GetDLLs("./libraries");
-            
+            foreach (var fileLoc in dllLocations)
+            {
+                var result = await LibraryLoader.LoadLibrary(fileLoc);
+                if (result == LoadResult.Loaded)
+                    await LogHandler.LogInfo($"Loaded {Path.GetFileName(fileLoc)} successfully.");
+                else
+                    await LogHandler.LogInfo($"Could not load {Path.GetFileName(fileLoc)}.");
+            }
         }
 
         private async Task LoadModules()
@@ -81,8 +73,8 @@ namespace DisCore.Core
             IEnumerable<string> dllLocations = FileHelper.GetDLLs("./modules");
             foreach (var fileLoc in dllLocations)
             {
-                var (result, reason) = await ModuleLoader.LoadModule(fileLoc);
-                if (result)
+                var result = await ModuleLoader.LoadModule(fileLoc);
+                if (result == LoadResult.Loaded)
                     await LogHandler.LogInfo($"Loaded {Path.GetFileName(fileLoc)} successfully.");
                 else
                     await LogHandler.LogInfo($"Could not load {Path.GetFileName(fileLoc)}.");

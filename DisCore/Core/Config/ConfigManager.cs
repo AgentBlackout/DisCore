@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
+using DisCore.Api.Config;
 using DSharpPlus.Entities;
 
 namespace DisCore.Core.Config

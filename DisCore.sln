@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DisCore", "DisCore\DisCore.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleModule", "ExampleModule\ExampleModule.csproj", "{B385958F-0613-484E-B5EC-9FE9CEA70047}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DisCore.Tests", "DisCore.Tests\DisCore.Tests.csproj", "{C7C80C21-9079-4494-B8C0-092CDD19C7A5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DisCore.Tests", "DisCore.Tests\DisCore.Tests.csproj", "{C7C80C21-9079-4494-B8C0-092CDD19C7A5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

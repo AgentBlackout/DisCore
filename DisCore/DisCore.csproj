@@ -9,4 +9,8 @@
     <PackageReference Include="DSharpPlus" Version="3.2.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\DisCore.Api\DisCore.Api.csproj" />
+  </ItemGroup>
+
 </Project>

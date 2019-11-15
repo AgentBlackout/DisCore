@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace DisCore.Core.Logging
+namespace DisCore.Api.Logging
 {
     public enum LogSeverity
     {

@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using DisCore.Core.Commands;
+using DisCore.Api.Commands;
+using DisCore.Api.Permissions;
 using DSharpPlus.Entities;
 
 namespace DisCore.Core.Permissions
 {
-    public class PermissionManager : IPermissionManager
+    public class PermissionHandler : IPermissionHandler
     {
         public PermissionLevels GetPermissionLevel(DiscordMember member, DiscordGuild guild)
         {

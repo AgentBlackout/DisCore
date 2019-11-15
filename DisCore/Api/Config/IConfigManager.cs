@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
-namespace DisCore.Core.Config
+namespace DisCore.Api.Config
 {
     public interface IConfigManager
     {

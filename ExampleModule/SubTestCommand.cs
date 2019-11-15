@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
-using DisCore.Core;
-using DisCore.Core.Commands;
-using DisCore.Core.Commands.Timeouts;
-using DisCore.Core.Entities.Commands;
-using DisCore.Core.Permissions;
+using DisCore.Api.Commands;
+using DisCore.Api.Commands.Timeout;
+using DisCore.Api.Permissions;
 
 namespace ExampleModule
 {

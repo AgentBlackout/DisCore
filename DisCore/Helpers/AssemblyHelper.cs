@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using DisCore.Api.Module;
 using DisCore.Core.Loaders.Module;
 
 namespace DisCore.Helpers

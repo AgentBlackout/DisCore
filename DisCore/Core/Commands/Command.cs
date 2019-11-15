@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
-using DisCore.Core.Commands.Timeouts;
-using DisCore.Core.Permissions;
+using DisCore.Api.Commands.Timeout;
+using DisCore.Api.Permissions;
 
 namespace DisCore.Core.Commands
 {
@@ -19,6 +17,8 @@ namespace DisCore.Core.Commands
             _perms = perms;
             _timeout = timeout;
         }
-        
+
+        //TODO: Overloads / params
+
     }
 }

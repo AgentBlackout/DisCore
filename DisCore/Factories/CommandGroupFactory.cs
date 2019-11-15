@@ -2,18 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
+using DisCore.Api.Commands;
+using DisCore.Api.Commands.Timeout;
+using DisCore.Api.Logging;
+using DisCore.Api.Permissions;
 using DisCore.Core;
 using DisCore.Core.Commands;
-using DisCore.Core.Commands.Timeouts;
-using DisCore.Core.Permissions;
 
 namespace DisCore.Factories
 {
     public static class CommandGroupFactory
     {
-        public static async Task<IEnumerable<CommandGroup>> GetCommandGroups(Assembly assembly)
+        public static async Task<IEnumerable<CommandGroup>> GetCommandGroups(Assembly assembly, ILogHandler log)
         {
             var commands = new List<CommandGroup>();
             var types = assembly.GetTypes().ToList();
@@ -22,12 +23,12 @@ namespace DisCore.Factories
                 if (!t.GetInterfaces().Contains(typeof(ICommand)) || t.IsInterface || t.IsAbstract)
                     continue;
 
-                await DisCoreRoot.Singleton.LogHandler.LogDebug($"Checking type {t} for valid commands.");
+                await log.LogDebug($"Checking type {t} for valid commands.");
 
                 var attrib = (CommandAttribute)t.GetCustomAttribute(typeof(CommandAttribute));
                 if (attrib == null)
                 {
-                    await DisCoreRoot.Singleton.LogHandler.LogWarning(
+                    await log.LogWarning(
                         $"Class {t.FullName} implements ICommand but doesn't have a Command attribute. Ignoring...");
                     continue;
                 }
@@ -53,7 +54,7 @@ namespace DisCore.Factories
             foreach (var cmdGroup in commands.Where(item => !item.IsSubGroup))
             {
                 finalCommands.Add(cmdGroup.CommandName, cmdGroup);
-                await DisCoreRoot.Singleton.LogHandler.LogDebug(
+                await log.LogDebug(
                     $"Registered command \"{cmdGroup.CommandName}\"");
             }
 
@@ -66,7 +67,7 @@ namespace DisCore.Factories
                 var cmdAttribute = (CommandAttribute)parent.GetCustomAttribute(typeof(CommandAttribute));
                 if (cmdAttribute == null)
                 {
-                    await DisCoreRoot.Singleton.LogHandler.LogWarning(
+                    await log.LogWarning(
                         $"SubCommand {cmdGroup.GetType().FullName} references parent class which has no command attribute. Ignoring");
                     continue;
                 }
@@ -76,12 +77,12 @@ namespace DisCore.Factories
                 if (finalCommands.TryGetValue(parentName, out var parentGroup))
                 {
                     parentGroup.AddSubCommand(cmdGroup);
-                    await DisCoreRoot.Singleton.LogHandler.LogDebug(
+                    await log.LogDebug(
                         $"Registered subcommand \"{cmdGroup.CommandName}\" to \"{parentGroup.CommandName}\"");
-                } 
+                }
                 else
                 {
-                    await DisCoreRoot.Singleton.LogHandler.LogWarning(
+                    await log.LogWarning(
                         $"SubCommand {cmdGroup.GetType().FullName} references parent class {parent.GetType().FullName} which is not registered. Make sure parent class implements ICommand and has Command attribute.");
                     continue;
                 }

@@ -1,4 +1,4 @@
-﻿namespace DisCore.Core.Permissions
+﻿namespace DisCore.Api.Permissions
 {
     public enum PermissionLevels
     {

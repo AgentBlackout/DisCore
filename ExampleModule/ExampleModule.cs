@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using DisCore.Core;
-using DisCore.Core.Loaders.Module;
+using DisCore.Api.Module;
 using DSharpPlus.Entities;
 
 namespace ExampleModule

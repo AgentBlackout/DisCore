@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
-namespace DisCore.Core.Loaders.Module
+namespace DisCore.Api.Module
 {
     public interface IModule
     {

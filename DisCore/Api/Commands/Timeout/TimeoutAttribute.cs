@@ -1,7 +1,7 @@
 ﻿using System;
-using DisCore.Core.Permissions;
+using DisCore.Api.Permissions;
 
-namespace DisCore.Core.Commands.Timeouts
+namespace DisCore.Api.Commands.Timeout
 {
     public enum TimeoutScope
     {

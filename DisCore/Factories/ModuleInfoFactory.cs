@@ -1,4 +1,5 @@
-﻿using DisCore.Core.Entities.Modules;
+﻿using DisCore.Api.Module;
+using DisCore.Core.Entities.Modules;
 using DisCore.Core.Loaders.Module;
 
 namespace DisCore.Factories

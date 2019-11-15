@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DisCore.Core.Commands
+namespace DisCore.Api.Commands
 {
     [AttributeUsage(AttributeTargets.Class)]
     public class CommandAttribute : Attribute

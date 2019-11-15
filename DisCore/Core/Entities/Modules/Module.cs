@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DisCore.Api.Module;
 using DisCore.Core.Commands;
 using DisCore.Core.Loaders.Module;
 using DisCore.Factories;

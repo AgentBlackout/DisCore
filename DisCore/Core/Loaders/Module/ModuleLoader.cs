@@ -4,10 +4,12 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using DisCore.Api.Config;
+using DisCore.Api.Logging;
+using DisCore.Api.Module;
 using DisCore.Core.Commands;
 using DisCore.Core.Config;
 using DisCore.Core.Entities.Modules;
-using DisCore.Core.Logging;
 using DisCore.Factories;
 using DisCore.Helpers;
 
@@ -45,29 +47,27 @@ namespace DisCore.Core.Loaders.Module
             IEnumerable<string> locations = FileHelper.GetDLLs(_modulesLocation);
             foreach (string location in locations)
             {
-                bool success;
-                string reason;
+                LoadResult result;
                 try
                 {
-                    (success, reason) = await LoadModule(location);
+                    result = await LoadModule(location);
                 }
                 catch (Exception e)
                 {
-                    success = false;
-                    reason = e.Message;
+                    result = LoadResult.Error;
                 }
 
-                if (success)
+                if (result == LoadResult.Loaded)
                     await _logHandler.LogInfo($"Loaded {location} module successfully");
                 else
-                    await _logHandler.LogWarning($"Failed to failed to load {location} ({reason})");
+                    await _logHandler.LogWarning($"Failed to failed to load {location}");
 
             }
 
             return _modules.Count();
         }
 
-        public async Task<(bool Success, string Reason)> LoadModule(string filepath)
+        public async Task<LoadResult> LoadModule(string filepath)
         {
             try
             {
@@ -75,10 +75,10 @@ namespace DisCore.Core.Loaders.Module
             }
             catch (Exception e)
             {
-                return (false, e.Message);
+                return LoadResult.Error;
             }
 
-            return (true, "Success");
+            return LoadResult.Loaded;
         }
 
         private async Task TryLoadModule(string filepath)
@@ -99,7 +99,7 @@ namespace DisCore.Core.Loaders.Module
 
             IModule modInstance = await TryOrLog<IModule, Exception>(async () => (IModule)Activator.CreateInstance(moduleType), _logHandler);
 
-            List<CommandGroup> commands = (await CommandGroupFactory.GetCommandGroups(assembly)).ToList();
+            List<CommandGroup> commands = (await CommandGroupFactory.GetCommandGroups(assembly, _logHandler)).ToList();
 
             int subCommands = commands.Sum(item => item.GetSubCommands().Count);
             await _logHandler.LogInfo(

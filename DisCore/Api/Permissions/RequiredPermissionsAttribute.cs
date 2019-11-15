@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DisCore.Core.Permissions
+namespace DisCore.Api.Permissions
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class RequiredPermissions : Attribute

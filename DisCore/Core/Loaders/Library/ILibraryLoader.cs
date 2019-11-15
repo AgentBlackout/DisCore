@@ -4,14 +4,14 @@ using System.Threading.Tasks;
 
 namespace DisCore.Core.Loaders.Library
 {
+
     public interface ILibraryLoader
     {
         IEnumerable<Assembly> GetLibraries();
 
-        Task LoadLibrary(string fileLoc);
-        Task LoadLibraries();
+        Task<LoadResult> LoadLibrary(string fileLoc);
 
-        Task UnloadLibrary(string name);
-        Task UnloadLibrary(Assembly a);
+        Task<LoadResult> UnloadLibrary(string name);
+        Task<LoadResult> UnloadLibrary(Assembly a);
     }
 }
