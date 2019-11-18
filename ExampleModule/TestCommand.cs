@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
-using DisCore.Api.Commands;
-using DisCore.Api.Commands.Timeout;
-using DisCore.Api.Permissions;
-using DisCore.Helpers;
+using DisCore.Shared.Commands;
+using DisCore.Shared.Commands.Timeout;
+using DisCore.Shared.Helpers;
+using DisCore.Shared.Permissions;
 
 namespace ExampleModule
 {
@@ -25,7 +25,7 @@ namespace ExampleModule
                 await cmd.Reply("You are an administrator");
             }
 
-            //Command is going to succeed, so set a timeout at the end
+            //CommandOverload is going to succeed, so set a timeout at the end
             Timeout.SetTimeout(TimeSpan.FromMinutes(1));
 
             return await CommandResult.Success();

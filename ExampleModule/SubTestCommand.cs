@@ -1,8 +1,8 @@
-﻿using System;
+﻿using DisCore.Shared.Commands;
+using DisCore.Shared.Commands.Timeout;
+using DisCore.Shared.Permissions;
+using System;
 using System.Threading.Tasks;
-using DisCore.Api.Commands;
-using DisCore.Api.Commands.Timeout;
-using DisCore.Api.Permissions;
 
 namespace ExampleModule
 {

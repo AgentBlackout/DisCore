@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using DisCore.Api.Module;
+using DisCore.Shared.Modules;
 using DSharpPlus.Entities;
 
 namespace ExampleModule
@@ -17,7 +17,6 @@ namespace ExampleModule
             await Task.Delay(200);
         }
 
-
         public async Task OnUnload()
         {
             await Task.Delay(200);
@@ -27,5 +26,6 @@ namespace ExampleModule
         {
             throw new NotImplementedException();
         }
+
     }
 }
