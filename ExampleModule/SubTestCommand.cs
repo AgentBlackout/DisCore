@@ -16,12 +16,12 @@ namespace ExampleModule
             return await CommandResult.Success();
         }
 
-        public async Task<CommandResult> Usage(CommandContext ctx)
+        public async Task<string> Usage()
         {
             throw new NotImplementedException();
         }
 
-        public async Task<CommandResult> Summary(CommandContext ctx)
+        public async Task<string> Summary()
         {
             throw new NotImplementedException();
         }

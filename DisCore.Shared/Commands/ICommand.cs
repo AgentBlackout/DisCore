@@ -5,8 +5,8 @@ namespace DisCore.Shared.Commands
     public interface ICommand
     {
 
-        Task<CommandResult> Usage(CommandContext ctx);
-        Task<CommandResult> Summary(CommandContext ctx);
+        Task<string> Usage();
+        Task<string> Summary();
 
     }
 }

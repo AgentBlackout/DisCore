@@ -44,29 +44,18 @@ namespace ExampleModule
             return await CommandResult.Success();
         }
 
-        //!test subtest
-        [Timeout(PermissionLevels.Creator)]
-        [RequiredPermissions(PermissionLevels.Administrator)]
-        public async Task<CommandResult> Subtest(CommandContext ctx)
-        {
-            await ctx.Reply("This is an admin-only command, which has a timeout, for no logical reason.");
-            return await CommandResult.Success();
-        }
-
         //This will be triggered by returning CommandResult.BadArgs()
-        public async Task<CommandResult> Usage(CommandContext ctx)
+        public async Task<string> Usage()
         {
-            await ctx.Reply("Usage: \n"+
+            return "Usage: \n"+
                             "!test\n" +
-                            "!test \"string\"");
-            return await CommandResult.Success();
+                            "!test \"string\"";
         }
 
-        public async Task<CommandResult> Summary(CommandContext ctx)
+        //Triggered on help
+        public async Task<string> Summary()
         {
-            await ctx.Reply("Summary of example command");
-            await Usage(ctx); //If you want to print the usage with the summary, personal choice. 
-            return await CommandResult.Success();
+            return "This command does example things.\nGenerally, used for examples.";
         }
     }
 }

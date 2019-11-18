@@ -14,7 +14,6 @@ namespace DisCore.Runner.Factories
     {
         public static async Task<IEnumerable<CommandGroup>> GetCommandGroups(Assembly assembly, ILogHandler log)
         {
-            //TODO: Reminder: it's picking up subcommands in the master, rather than just in sub commands, might need rewriting
             var commands = new List<CommandGroup>();
             var types = assembly.GetTypes().ToList();
             foreach (Type t in types)
@@ -28,7 +27,7 @@ namespace DisCore.Runner.Factories
                 if (attrib == null)
                 {
                     await log.LogWarning(
-                        $"Class {t.FullName} implements ICommand but doesn't have a CommandOverload attribute. Ignoring...");
+                        $"Class {t.FullName} implements ICommand but doesn't have a CommandAttribute. Ignoring...");
                     continue;
                 }
 

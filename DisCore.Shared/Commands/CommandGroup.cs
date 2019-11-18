@@ -16,8 +16,8 @@ namespace DisCore.Shared.Commands
 
         private readonly List<CommandGroup> _subCommandGroups;
 
-        private readonly Func<CommandContext, Task<CommandResult>> _usageFunc;
-        private readonly Func<CommandContext, Task<CommandResult>> _summaryFunc;
+        private readonly Func<Task<string>> _usageFunc;
+        private readonly Func<Task<string>> _summaryFunc;
 
         public CommandAttribute CommandAttribute;
         public TimeoutAttribute Timeout;
@@ -29,8 +29,8 @@ namespace DisCore.Shared.Commands
 
         public CommandGroup(
             string cmdName,
-            Func<CommandContext, Task<CommandResult>> usage,
-            Func<CommandContext, Task<CommandResult>> summary,
+            Func<Task<string>> usage,
+            Func<Task<string>> summary,
             CommandAttribute commandAttribute,
             RequiredPermissions perms = null,
             TimeoutAttribute timeout = null
@@ -54,9 +54,7 @@ namespace DisCore.Shared.Commands
         public List<CommandGroup> GetSubCommands() => _subCommandGroups;
 
         public void AddOverload(CommandOverload cmd) => _overloads.Add(cmd);
-
-        public void RemoveOverload(CommandOverload cmd) => _overloads.Remove(cmd);
-
+        
         public IEnumerable<CommandOverload> GetOverloads() => _overloads;
 
         public void AddSubCommand(CommandGroup cmdG) => _subCommandGroups.Add(cmdG);

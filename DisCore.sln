@@ -9,9 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DisCore.Tests", "DisCore.Te
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DisCore.Shared", "DisCore.Shared\DisCore.Shared.csproj", "{4E80929E-1BBF-44C6-A200-76BC5D56CDEA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DisCore.Api", "DisCore.Api\DisCore.Api.csproj", "{67D91F35-FBE8-43AB-A574-0D199F8DF451}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DisCore.Api", "DisCore.Api\DisCore.Api.csproj", "{67D91F35-FBE8-43AB-A574-0D199F8DF451}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DisCore.Runner", "DisCore.Runner\DisCore.Runner.csproj", "{21C068A0-5C94-4C52-90B7-D9C8F0A1BE23}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UtilsModule", "UtilsModule\UtilsModule.csproj", "{C9B1C6DA-E444-43C1-992D-159C2A622A48}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{21C068A0-5C94-4C52-90B7-D9C8F0A1BE23}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{21C068A0-5C94-4C52-90B7-D9C8F0A1BE23}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{21C068A0-5C94-4C52-90B7-D9C8F0A1BE23}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9B1C6DA-E444-43C1-992D-159C2A622A48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9B1C6DA-E444-43C1-992D-159C2A622A48}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9B1C6DA-E444-43C1-992D-159C2A622A48}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9B1C6DA-E444-43C1-992D-159C2A622A48}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
