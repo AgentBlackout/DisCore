@@ -37,34 +37,6 @@ namespace DisCore.Runner.Loaders.Module
             _domain = AppDomain.CurrentDomain;
         }
 
-        public async Task<int> LoadModules()
-        {
-            if (_modules.Any())
-                throw new InvalidOperationException("Modules already loaded");
-
-            IEnumerable<string> locations = FileHelper.GetDLLs(_modulesLocation);
-            foreach (string location in locations)
-            {
-                LoadResult result;
-                try
-                {
-                    result = await LoadModule(location);
-                }
-                catch (Exception e)
-                {
-                    result = LoadResult.Error;
-                }
-
-                if (result == LoadResult.Loaded)
-                    await _logHandler.LogInfo($"Loaded {location} module successfully");
-                else
-                    await _logHandler.LogWarning($"Failed to failed to load {location}");
-
-            }
-
-            return _modules.Count();
-        }
-
         public async Task<LoadResult> LoadModule(string filepath)
         {
             try

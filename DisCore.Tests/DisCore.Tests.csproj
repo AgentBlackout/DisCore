@@ -18,7 +18,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DisCore\DisCore.Runner.csproj" />
+    <ProjectReference Include="..\DisCore.Api\DisCore.Api.csproj" />
+    <ProjectReference Include="..\DisCore.Runner\DisCore.Runner.csproj" />
+    <ProjectReference Include="..\DisCore.Shared\DisCore.Shared.csproj" />
   </ItemGroup>
 
 </Project>

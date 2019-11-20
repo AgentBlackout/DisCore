@@ -18,7 +18,11 @@ namespace DisCore.Runner.Helpers
         {
             var conf = new RootConfigHelper(new JsonConfig(fileLoc));
             if (!File.Exists(fileLoc))
+            {
+                File.Create(fileLoc);
                 await conf.InitConfig();
+            }
+
             await conf._conf.Load();
             return (JsonConfig)conf._conf;
         }
@@ -39,7 +43,7 @@ namespace DisCore.Runner.Helpers
         }
 
         public async Task InitConfig()
-        {
+        { 
             await _conf.Set("token", "abc-123-abc");
             await _conf.Set("owners", new long[] { 123, 1441, 999 });
 
