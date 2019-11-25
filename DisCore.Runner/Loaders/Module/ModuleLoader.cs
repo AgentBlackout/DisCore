@@ -18,32 +18,34 @@ namespace DisCore.Runner.Loaders.Module
 
         private readonly AppDomain _domain;
         private readonly ILogHandler _logHandler;
-        private readonly string _modulesLocation;
-
-        private readonly IConfig _config;
 
         private readonly List<DllModule> _modules;
 
         public IEnumerable<DllModule> GetModules() => _modules;
 
-        public ModuleLoader(string moduleLocation, IConfig config, ILogHandler logHandler)
+        /// <summary>
+        /// A class to handle loading and unloading of modules.
+        /// </summary>
+        /// <param name="logHandler">Log handler to log to.</param>
+        public ModuleLoader(ILogHandler logHandler)
         {
-            _modulesLocation = moduleLocation;
-            _config = config;
-
             _logHandler = logHandler;
             _modules = new List<DllModule>();
 
             _domain = AppDomain.CurrentDomain;
         }
 
+        /// <summary>
+        /// Load a module
+        /// </summary>
+        /// <param name="filepath">Filepath of the DLL to load</param>
         public async Task<LoadResult> LoadModule(string filepath)
         {
             try
             {
                 await TryLoadModule(filepath);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return LoadResult.Error;
             }
@@ -51,12 +53,17 @@ namespace DisCore.Runner.Loaders.Module
             return LoadResult.Loaded;
         }
 
+        /// <summary>
+        /// Tries to load a module, can raise a variety of exceptions.
+        /// </summary>
+        /// <param name="filepath"></param>
+        /// <returns>Task</returns>
         private async Task TryLoadModule(string filepath)
         {
             var fileName = Path.GetFileName(filepath);
             await _logHandler.LogDebug($"Trying to load DLL {fileName}");
 
-            Assembly assembly = await TryOrLog<Assembly, Exception>(async () => await AssemblyHelper.ReadAndLoad(filepath), _logHandler);
+            Assembly assembly = await TryOrLog<Assembly, Exception>(async () => await AssemblyHelper.ReadAndLoad(_domain, filepath), _logHandler);
 
             Type moduleType = await TryOrLog<Type, ReflectionTypeLoadException>(async () => AssemblyHelper.GetIModuleType(assembly), _logHandler);
 
@@ -67,11 +74,11 @@ namespace DisCore.Runner.Loaders.Module
                 return;
             }
 
-            IModule modInstance = await TryOrLog<IModule, Exception>(async () => (IModule)Activator.CreateInstance(moduleType), _logHandler);
+            IModule modInstance = await TryOrLog<IModule, Exception>(() => Task.FromResult((IModule)Activator.CreateInstance(moduleType)), _logHandler);
 
             List<CommandGroup> commands = (await CommandGroupFactory.GetCommandGroups(assembly, _logHandler)).ToList();
 
-            int subCommands = commands.Sum(item => item.GetSubCommands().Count);
+            int subCommands = commands.Sum(item => item.GetSubGroups().Count);
             await _logHandler.LogInfo(
                         $"Module \"{modInstance.Name}\" defines {(commands.Count == 0 ? "zero" : commands.Count.ToString())} command{(commands.Count == 1 ? "" : "s")} ({subCommands} subcommand{(subCommands == 1 ? "s" : "")})"
                     );

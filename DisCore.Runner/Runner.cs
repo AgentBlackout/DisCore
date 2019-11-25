@@ -16,7 +16,7 @@ using DSharpPlus;
 
 namespace DisCore.Runner
 {
-    public sealed class DisCoreRunner
+    public sealed class Runner
     {
         public JsonConfig Config;
 
@@ -34,7 +34,7 @@ namespace DisCore.Runner
 
         public List<DllModule> Modules => ModuleLoader.GetModules().ToList();
 
-        public DisCoreRunner()
+        public Runner()
         {
 
             PermManager = null;
@@ -42,8 +42,8 @@ namespace DisCore.Runner
 
             LogHandler = new ConsoleLogHandler();
 
-            ModuleLoader = new ModuleLoader("./modules", Config, LogHandler);
-            LibraryLoader = new LibraryLoader("./library", LogHandler);
+            ModuleLoader = new ModuleLoader(LogHandler);
+            LibraryLoader = new LibraryLoader(LogHandler);
         }
 
         public async Task Load()

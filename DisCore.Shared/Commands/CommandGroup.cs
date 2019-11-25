@@ -51,7 +51,7 @@ namespace DisCore.Shared.Commands
             Timeout = timeout ?? new TimeoutAttribute();
         }
 
-        public List<CommandGroup> GetSubCommands() => _subCommandGroups;
+        public List<CommandGroup> GetSubGroups() => _subCommandGroups;
 
         public void AddOverload(CommandOverload cmd) => _overloads.Add(cmd);
         

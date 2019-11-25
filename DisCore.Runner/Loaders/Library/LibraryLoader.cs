@@ -14,8 +14,6 @@ namespace DisCore.Runner.Loaders.Library
 
         private readonly ILogHandler _logHandler;
 
-        private readonly string _configLocation;
-
         private readonly List<Assembly> _assemblies;
 
         public IEnumerable<Assembly> GetLibraries() => _assemblies;
@@ -24,19 +22,8 @@ namespace DisCore.Runner.Loaders.Library
             throw new NotImplementedException();
         }
 
-        async Task<LoadResult> ILibraryLoader.UnloadLibrary(string name)
+        public LibraryLoader(ILogHandler logHandler)
         {
-            throw new NotImplementedException();
-        }
-
-        async Task<LoadResult> ILibraryLoader.UnloadLibrary(Assembly a)
-        {
-            throw new NotImplementedException();
-        }
-
-        public LibraryLoader(string location, ILogHandler logHandler)
-        {
-            _configLocation = location;
             _logHandler = logHandler ?? throw new ArgumentNullException(nameof(logHandler));
 
             _assemblies = new List<Assembly>();
@@ -51,19 +38,19 @@ namespace DisCore.Runner.Loaders.Library
 
             await _logHandler.LogDebug($"Loading library {fileName}");
 
-            Assembly assembly = await AssemblyHelper.ReadAndLoad(fileLoc);
+            Assembly assembly = await AssemblyHelper.ReadAndLoad(_domain, fileLoc);
 
             _assemblies.Add(assembly);
         }
 
-        public async Task UnloadLibrary(string name)
+        public async Task<LoadResult> UnloadLibrary(string name)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException(); //TODO
         }
 
-        public async Task UnloadLibrary(Assembly a)
+        public async Task<LoadResult> UnloadLibrary(Assembly a)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException(); //TODO
         }
     }
 }

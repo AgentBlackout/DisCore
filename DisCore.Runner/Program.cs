@@ -10,7 +10,7 @@ namespace DisCore.Runner
     {
         static void Main(string[] args)
         {
-            DisCoreRunner core = new DisCoreRunner();
+            Runner core = new Runner();
 
             Task.WaitAll(new Task[] { core.Run() });
 
@@ -49,7 +49,7 @@ namespace DisCore.Runner
                     Console.WriteLine(indent + indent + "!" + method.Name + " " + String.Join(" ", method.GetParameters().Select(item => item.ParameterType.Name)));
                 }
 
-                PrintSubcommandsRecursive(commandGroup.GetSubCommands());
+                PrintSubcommandsRecursive(commandGroup.GetSubGroups());
             }
         }
     }

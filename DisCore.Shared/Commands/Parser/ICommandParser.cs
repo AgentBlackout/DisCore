@@ -5,6 +5,6 @@ namespace DisCore.Shared.Commands.Parser
 {
     public interface ICommandParser
     {
-        Task<(CommandOverload, CommandParameter[])> GetCommandAndParameters(CommandGroup masterGroup, DiscordMessage message);
+        Task<(CommandOverload Overload, CommandParameter[] Params)> ParseMessage(DiscordMessage message, CommandGroup[] commands);
     }
 }
