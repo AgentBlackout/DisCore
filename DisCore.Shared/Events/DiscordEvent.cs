@@ -4,7 +4,13 @@ using System.Text;
 
 namespace DisCore.Shared.Events
 {
-    class DiscordEvent
+    public enum DiscordEvent
     {
+        MessageCreated,
+        MessageDeleted,
+        ReactionAdded,
+        ReactionDeleted,
+        GuildMemberJoined,
+        GuildMemberLeft
     }
 }
