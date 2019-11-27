@@ -19,6 +19,8 @@ namespace DisCore.Runner.Helpers
             return assembly.GetTypes().FirstOrDefault(item => item.GetInterfaces().Contains(typeof(IModule)));
         }
 
+        public static MethodInfo[] GetEventMethods
+
         /// <summary>
         /// Read an assembly into bytes then load it into the app domain
         /// </summary>
@@ -31,6 +33,8 @@ namespace DisCore.Runner.Helpers
             var assemblyBytes = await File.ReadAllBytesAsync(location);
             return domain.Load(assemblyBytes);
         }
+
+
 
     }
 }
