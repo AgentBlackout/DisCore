@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,12 +10,13 @@ using DisCore.Runner.Loaders.Module;
 using DisCore.Shared.Commands.Parser;
 using DisCore.Shared.Commands.Timeout;
 using DisCore.Shared.Config.Json;
+using DisCore.Shared.Events;
 using DisCore.Shared.Helpers;
 using DisCore.Shared.Logging;
 using DisCore.Shared.Modules;
 using DisCore.Shared.Permissions;
 using DSharpPlus;
-
+using EventHandler = DisCore.Runner.Events.EventHandler;
 namespace DisCore.Runner
 {
     public sealed class Runner
@@ -23,12 +25,13 @@ namespace DisCore.Runner
 
         public DiscordShardedClient ShardClient;
 
-        public IPermissionHandler PermManager;
-        public ITimeoutHandler TimeoutHandler;
+        public IPermissionHandler PermissionHandler = null;
+        public ITimeoutHandler TimeoutHandler = null;
+        public IEventHandler EventHandler = null;
 
-        public ICommandParser Parser;
+        public ICommandParser Parser = null;
 
-        public ILogHandler LogHandler;
+        public ILogHandler LogHandler = null;
 
         public readonly ModuleLoader ModuleLoader;
         public readonly LibraryLoader LibraryLoader;
@@ -38,14 +41,11 @@ namespace DisCore.Runner
         public Runner()
         {
 
-            PermManager = null;
-            TimeoutHandler = null;
-
             LogHandler = new ConsoleLogHandler();
 
-            ModuleLoader = new ModuleLoader(LogHandler);
+            EventHandler = new EventHandler(LogHandler);
+            ModuleLoader = new ModuleLoader(EventHandler, LogHandler);
             LibraryLoader = new LibraryLoader(LogHandler);
-
         }
 
         public async Task Load()
@@ -74,11 +74,17 @@ namespace DisCore.Runner
             IEnumerable<string> dllLocations = FileHelper.GetDLLs("./modules");
             foreach (var fileLoc in dllLocations)
             {
-                var result = await ModuleLoader.LoadModule(fileLoc);
-                if (result == LoadResult.Loaded)
-                    await LogHandler.LogInfo($"Loaded {Path.GetFileName(fileLoc)} successfully.");
-                else
+                var (result, module) = await ModuleLoader.LoadModule(fileLoc);
+                if (result != LoadResult.Loaded)
+                {
                     await LogHandler.LogInfo($"Could not load {Path.GetFileName(fileLoc)}.");
+                    continue;
+                }
+
+                TrySet<IPermissionHandler>(ref PermissionHandler, module.PermissionHandler, async () => await LogHandler.LogWarning($"Module {module.Info.Name} is trying to replace IPermissionHandler but one is already set."));
+                TrySet<ITimeoutHandler>(ref TimeoutHandler, module.TimeoutHandler, async () => await LogHandler.LogWarning($"Module {module.Info.Name} is trying to replace ITimeoutHandler but one is already set."));
+                TrySet<IEventHandler>(ref EventHandler, module.EventHandler, async () => await LogHandler.LogWarning($"Module {module.Info.Name} is trying to replace IEventHandler but one is already set."));
+
             }
         }
 
@@ -89,6 +95,8 @@ namespace DisCore.Runner
             await Load();
 
             await StartShards();
+
+            await EventHandler.SetupShardClient(ShardClient);
 
             await Task.Delay(int.MaxValue);
 
@@ -107,6 +115,29 @@ namespace DisCore.Runner
             await LogHandler.LogInfo("Starting Shards... Please wait...");
             await ShardClient.StartAsync();
             await LogHandler.LogInfo($"{ShardClient.ShardClients.Count} Shards online");
+        }
+
+        /// <summary>
+        /// Attempt to assign the variable. Runs errorAction if variable a is already defined.
+        /// </summary>
+        /// <typeparam name="T">Type of variable A</typeparam>
+        /// <param name="a">Reference to assign to</param>
+        /// <param name="b">Value to assign</param>
+        /// <param name="errorAction">Called when variable is already assigned</param>
+        private static void TrySet<T>(ref T a, T b, Func<Task> errorAction)
+        {
+            if (b == null)
+                return;
+
+            if (a == null)
+            {
+                a = b;
+            }
+            else
+            {
+                errorAction().Wait();
+            }
+
         }
 
     }

@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using DisCore.Shared.Events;
 using DisCore.Shared.Modules;
+using DisCore.Shared.Permissions;
 
 namespace DisCore.Runner.Helpers
 {
@@ -19,7 +23,27 @@ namespace DisCore.Runner.Helpers
             return assembly.GetTypes().FirstOrDefault(item => item.GetInterfaces().Contains(typeof(IModule)));
         }
 
-        public static MethodInfo[] GetEventMethods
+        /// <summary>
+        /// Get all MethodInfo's that have the ListenerAttribute attribute
+        /// </summary>
+        /// <param name="assembly">Assembly to search</param>
+        /// <returns></returns>
+        public static IEnumerable<MethodInfo> GetEventMethods(Assembly assembly)
+        {
+            return assembly.GetTypes().SelectMany(type => type.GetMethods()).Where(method =>
+                method.GetCustomAttribute(typeof(ListenerAttribute)) != null);
+        }
+
+        /// <summary>
+        /// Get types implementing T
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="assembly">Assembly to check types</param>
+        /// <returns></returns>
+        public static IEnumerable<Type> GetImplementers<T>(Assembly assembly)
+        {
+            return assembly.GetTypes().Where(t => t.GetInterfaces().Contains(typeof(T)));
+        }
 
         /// <summary>
         /// Read an assembly into bytes then load it into the app domain

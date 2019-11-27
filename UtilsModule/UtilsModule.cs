@@ -13,16 +13,19 @@ namespace UtilsModule
         public string Summary => "General administrative functions for moderators";
         public async Task OnLoad()
         {
+            //TODO
             throw new NotImplementedException();
         }
 
         public async Task OnUnload()
         {
+            //TODO
             throw new NotImplementedException();
         }
 
         public async Task OnLoadGuild(DiscordGuild guild)
         {
+            //TODO
             throw new NotImplementedException();
         }
     }

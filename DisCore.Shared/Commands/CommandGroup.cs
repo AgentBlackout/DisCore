@@ -61,7 +61,7 @@ namespace DisCore.Shared.Commands
 
         public async Task<CommandResult> Call(List<CommandParameter[]> potentialArgs)
         {
-
+            //TODO
             throw new NotImplementedException();
         }
 

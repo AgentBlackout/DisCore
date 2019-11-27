@@ -8,7 +8,7 @@ namespace DisCore.Runner.Loaders.Module
     {
         IEnumerable<DllModule> GetModules();
 
-        Task<LoadResult> LoadModule(string path);
+        Task<(LoadResult Result, DllModule Module)> LoadModule(string path);
 
     }
 

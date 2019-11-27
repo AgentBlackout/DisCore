@@ -8,8 +8,10 @@ using DisCore.Runner.Factories;
 using DisCore.Runner.Helpers;
 using DisCore.Shared.Commands;
 using DisCore.Shared.Config;
+using DisCore.Shared.Events;
 using DisCore.Shared.Logging;
 using DisCore.Shared.Modules;
+using DisCore.Shared.Permissions;
 
 namespace DisCore.Runner.Loaders.Module
 {
@@ -20,16 +22,15 @@ namespace DisCore.Runner.Loaders.Module
         private readonly ILogHandler _logHandler;
 
         private readonly List<DllModule> _modules;
+        private readonly IEventHandler _eventHandler;
 
         public IEnumerable<DllModule> GetModules() => _modules;
 
-        /// <summary>
-        /// A class to handle loading and unloading of modules.
-        /// </summary>
-        /// <param name="logHandler">Log handler to log to.</param>
-        public ModuleLoader(ILogHandler logHandler)
+        public ModuleLoader(IEventHandler eventHandler, ILogHandler logHandler)
         {
             _logHandler = logHandler;
+            _eventHandler = eventHandler;
+
             _modules = new List<DllModule>();
 
             _domain = AppDomain.CurrentDomain;
@@ -39,18 +40,19 @@ namespace DisCore.Runner.Loaders.Module
         /// Load a module
         /// </summary>
         /// <param name="filepath">Filepath of the DLL to load</param>
-        public async Task<LoadResult> LoadModule(string filepath)
+        public async Task<(LoadResult, DllModule)> LoadModule(string filepath)
         {
+            DllModule module;
             try
             {
-                await TryLoadModule(filepath);
+                module = await TryLoadModule(filepath);
             }
             catch (Exception)
             {
-                return LoadResult.Error;
+                return (LoadResult.Error, null);
             }
 
-            return LoadResult.Loaded;
+            return (LoadResult.Loaded, module);
         }
 
         /// <summary>
@@ -58,7 +60,7 @@ namespace DisCore.Runner.Loaders.Module
         /// </summary>
         /// <param name="filepath"></param>
         /// <returns>Task</returns>
-        private async Task TryLoadModule(string filepath)
+        private async Task<DllModule> TryLoadModule(string filepath)
         {
             var fileName = Path.GetFileName(filepath);
             await _logHandler.LogDebug($"Trying to load DLL {fileName}");
@@ -70,8 +72,8 @@ namespace DisCore.Runner.Loaders.Module
             if (moduleType == null)
             {
                 await _logHandler.LogError(
-                    $"{fileName} does not contain a class definition which extends IModule");
-                return;
+                    $"{fileName} does not contain a class definition which implements IModule");
+                throw new Exception("Assembly does not contain a definition which implements IModule");
             }
 
             IModule modInstance = await TryOrLog<IModule, Exception>(() => Task.FromResult((IModule)Activator.CreateInstance(moduleType)), _logHandler);
@@ -89,6 +91,19 @@ namespace DisCore.Runner.Loaders.Module
             };
 
             _modules.Add(module);
+
+            Type permHandler = AssemblyHelper.GetImplementers<IPermissionHandler>(assembly).FirstOrDefault();
+            if (permHandler != null)
+                module.PermissionHandler = (IPermissionHandler)Activator.CreateInstance(permHandler);
+
+            Type logHandler = AssemblyHelper.GetImplementers<ILogHandler>(assembly).FirstOrDefault();
+            if (logHandler != null)
+                module.LogHandler = (ILogHandler) Activator.CreateInstance(logHandler);
+
+            //TODO 
+
+
+            return module;
         }
 
         /// <summary>

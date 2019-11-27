@@ -5,9 +5,13 @@ using System.Text;
 namespace DisCore.Shared.Events
 {
     [AttributeUsage(AttributeTargets.Method)]
-    public class EventAttribute : Attribute
+    public class ListenerAttribute : Attribute
     {
         public bool IgnoreCommands;
-        public EventAttribute()
+
+        public ListenerAttribute(bool ignoreCommands)
+        {
+            IgnoreCommands = ignoreCommands;
+        }
     }
 }

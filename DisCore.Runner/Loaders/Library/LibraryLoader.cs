@@ -19,6 +19,7 @@ namespace DisCore.Runner.Loaders.Library
         public IEnumerable<Assembly> GetLibraries() => _assemblies;
         public async Task<LoadResult> LoadLibrary(string fileLoc)
         {
+            //TODO
             throw new NotImplementedException();
         }
 

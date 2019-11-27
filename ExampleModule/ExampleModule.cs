@@ -24,6 +24,8 @@ namespace ExampleModule
 
         public async Task OnLoadGuild(DiscordGuild guild)
         {
+
+            //TODO
             throw new NotImplementedException();
         }
 
