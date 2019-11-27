@@ -4,6 +4,7 @@ namespace DisCore.Shared.Config
 {
     public interface IConfig
     {
+
         Task Load();
         Task Save();
 

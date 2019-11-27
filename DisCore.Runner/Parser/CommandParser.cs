@@ -6,25 +6,39 @@ using System.Threading.Tasks;
 using DisCore.Shared.Commands;
 using DisCore.Shared.Commands.Parser;
 using DisCore.Shared.Config;
+using DisCore.Shared.Helpers;
 using DSharpPlus.Entities;
 
 namespace DisCore.Runner.Parser
 {
-    class CommandParser : ICommandParser
+    public sealed class CommandParser : ICommandParser
     {
-        private IConfigManager _configManager;
+        private readonly IConfigManager _configManager;
 
         public CommandParser(IConfigManager configManager)
         {
             _configManager = configManager;
         }
 
-        public async Task<(CommandOverload Overload, CommandParameter[] Params)> ParseMessage(DiscordMessage message, CommandGroup[] commands)
+        public async Task<(CommandParseResult Result, ParsedCommand Command)> ParseMessage(DiscordMessage message, IEnumerable<CommandGroup> commands)
         {
-            var overloads = commands.SelectMany(GetCommandOverloadsRecursive);
-            var guildConfig = await _configManager.GetGuildConfig(message.Channel.Guild);
+            string prefix = await ConfigHelper.GetGuildPrefix(_configManager, message.Channel.Guild);
 
-            throw new NotImplementedException();
+            if (!message.Content.StartsWith(prefix))
+                return (CommandParseResult.NotCommand, null);// It's not a command
+
+            //TODO: Aliases
+
+            string command = message.Content.Substring(0, prefix.Length);
+            var group = commands.FirstOrDefault(group => String.Equals(@group.CommandName, command, StringComparison.CurrentCultureIgnoreCase));
+
+            if (group == null)
+                return (CommandParseResult.NoCommand, null);
+
+            //Try and match the longest sequences first first
+            var overloads = GetCommandOverloadsRecursive(group).OrderByDescending(overload => overload.GetParameters().Count());
+
+            return (CommandParseResult.NotFound, null);
         }
 
 

@@ -1,20 +1,24 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace DisCore.Shared.Config.Json
 {
-    public class JsonConfig : IConfig
+    public class JsonConfig : IConfig, IDisposable
     {
         private JObject _rootObject = new JObject();
         private bool _dirty = false;
 
         private readonly string _configFile;
+        private readonly FileStream _fileStream;
 
         public JsonConfig(string path)
         {
             _configFile = path;
+            _fileStream = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
         }
 
         public Task<T> Get<T>(string key)
@@ -53,7 +57,12 @@ namespace DisCore.Shared.Config.Json
                 Formatting = Formatting.Indented,
                 /*typeNameHandling = TypeNameHandling.All*/
             });
-            await File.WriteAllTextAsync(_configFile, json);
+
+            var bytes = Encoding.Unicode.GetBytes(json);
+
+            await _fileStream.WriteAsync(bytes, 0, bytes.Length);
+            _fileStream.Flush();
+
             _dirty = false;
         }
 
@@ -62,8 +71,23 @@ namespace DisCore.Shared.Config.Json
             if (!File.Exists(_configFile))
                 throw new FileNotFoundException(_configFile);
 
-            var content = await File.ReadAllTextAsync(_configFile);
-            _rootObject = JsonConvert.DeserializeObject<JObject>(content);
+            StringBuilder sb = new StringBuilder();
+
+            byte[] buffer = new byte[0x1000];
+            int numRead;
+            _fileStream.Seek(0, SeekOrigin.Begin);
+            while ((numRead = await _fileStream.ReadAsync(buffer, 0, buffer.Length)) != 0)
+            {
+                string text = Encoding.Unicode.GetString(buffer, 0, numRead);
+                sb.Append(text);
+            }
+            
+            _rootObject = JsonConvert.DeserializeObject<JObject>(sb.ToString());
+        }
+
+        public void Dispose()
+        {
+            _fileStream.Dispose();
         }
     }
 }

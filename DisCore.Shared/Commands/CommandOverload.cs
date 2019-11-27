@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using DisCore.Shared.Commands.Timeout;
 using DisCore.Shared.Permissions;
@@ -18,9 +20,14 @@ namespace DisCore.Shared.Commands
             _timeout = timeout;
         }
 
+        public TimeoutAttribute GetTimeout() => _timeout;
+        public RequiredPermissions GetRequiredPermissions() => _perms;
+
         public MethodInfo GetMethod() => _methodInfo;
 
-        //TODO: Overloads / params
+        public IEnumerable<ParameterInfo> GetParameters() => _methodInfo.GetParameters();
+
+        public IEnumerable<Type> GetParameterTypes() => _methodInfo.GetParameters().Select(pInfo => pInfo.ParameterType);
 
     }
 }

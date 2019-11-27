@@ -9,6 +9,7 @@ using DisCore.Runner.Loaders.Module;
 using DisCore.Shared.Commands.Parser;
 using DisCore.Shared.Commands.Timeout;
 using DisCore.Shared.Config.Json;
+using DisCore.Shared.Helpers;
 using DisCore.Shared.Logging;
 using DisCore.Shared.Modules;
 using DisCore.Shared.Permissions;
@@ -20,7 +21,7 @@ namespace DisCore.Runner
     {
         public JsonConfig Config;
 
-        public List<DiscordShardedClient> Shards;
+        public DiscordShardedClient ShardClient;
 
         public IPermissionHandler PermManager;
         public ITimeoutHandler TimeoutHandler;
@@ -44,11 +45,12 @@ namespace DisCore.Runner
 
             ModuleLoader = new ModuleLoader(LogHandler);
             LibraryLoader = new LibraryLoader(LogHandler);
+
         }
 
         public async Task Load()
         {
-            Config = await RootConfigHelper.LoadOrInit("./config.json");
+            Config = (JsonConfig)(await RootConfigHelper.InitOrLoad("./config.json", LogHandler));
 
             await LoadLibraries();
             await LoadModules();
@@ -86,6 +88,25 @@ namespace DisCore.Runner
         {
             await Load();
 
+            await StartShards();
+
+            await Task.Delay(int.MaxValue);
+
+        }
+
+        public async Task StartShards()
+        {
+            var discordConfig = new DiscordConfiguration()
+            {
+                AutoReconnect = true,
+                ShardCount = await RootConfigHelper.GetShardCount(Config),
+                Token = await RootConfigHelper.GetToken(Config)
+            };
+
+            ShardClient = new DiscordShardedClient(discordConfig);
+            await LogHandler.LogInfo("Starting Shards... Please wait...");
+            await ShardClient.StartAsync();
+            await LogHandler.LogInfo($"{ShardClient.ShardClients.Count} Shards online");
         }
 
     }
