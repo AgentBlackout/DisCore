@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
+using DisCore.Shared.Events;
 using DisCore.Shared.Modules;
 using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 
 namespace ExampleModule
 {
@@ -27,6 +29,15 @@ namespace ExampleModule
 
             //TODO
             throw new NotImplementedException();
+        }
+
+        [Listener(true)]
+        public async Task OnMessage(MessageCreateEventArgs e)
+        {
+            //Filter words and somesuch
+
+            await Task.Delay(200);
+            return;
         }
 
     }

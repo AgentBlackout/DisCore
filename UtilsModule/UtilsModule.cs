@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
+using DisCore.Shared.Events;
 using DisCore.Shared.Modules;
 using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 
 namespace UtilsModule
 {
@@ -28,5 +30,6 @@ namespace UtilsModule
             //TODO
             throw new NotImplementedException();
         }
+
     }
 }

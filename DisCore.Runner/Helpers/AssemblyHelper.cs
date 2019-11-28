@@ -24,14 +24,16 @@ namespace DisCore.Runner.Helpers
         }
 
         /// <summary>
-        /// Get all MethodInfo's that have the ListenerAttribute attribute
+        /// Gets all methods with specified attribute
         /// </summary>
+        /// <typeparam name="T">Attribute required</typeparam>
         /// <param name="assembly">Assembly to search</param>
         /// <returns></returns>
-        public static IEnumerable<MethodInfo> GetEventMethods(Assembly assembly)
+        public static IEnumerable<MethodInfo> GetMethodsWithAttribute<T>(Assembly assembly)
         {
-            return assembly.GetTypes().SelectMany(type => type.GetMethods()).Where(method =>
-                method.GetCustomAttribute(typeof(ListenerAttribute)) != null);
+            var methods = assembly.GetTypes().SelectMany(type => type.GetMethods());
+
+            return methods.Where(method => method.GetCustomAttributes().Any(attr => attr.GetType() == typeof(T)));
         }
 
         /// <summary>

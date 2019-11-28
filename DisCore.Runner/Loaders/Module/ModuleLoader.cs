@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using DisCore.Runner.Factories;
 using DisCore.Runner.Helpers;
 using DisCore.Shared.Commands;
+using DisCore.Shared.Commands.Parser;
+using DisCore.Shared.Commands.Timeout;
 using DisCore.Shared.Config;
 using DisCore.Shared.Events;
 using DisCore.Shared.Logging;
@@ -67,12 +69,12 @@ namespace DisCore.Runner.Loaders.Module
 
             Assembly assembly = await TryOrLog<Assembly, Exception>(async () => await AssemblyHelper.ReadAndLoad(_domain, filepath), _logHandler);
 
-            Type moduleType = await TryOrLog<Type, ReflectionTypeLoadException>(async () => AssemblyHelper.GetIModuleType(assembly), _logHandler);
+            Type moduleType = await TryOrLog<Type, ReflectionTypeLoadException>(async () => await Task.FromResult(AssemblyHelper.GetIModuleType(assembly)), _logHandler);
 
             if (moduleType == null)
             {
                 await _logHandler.LogError(
-                    $"{fileName} does not contain a class definition which implements IModule");
+                    $"{assembly.FullName} does not contain a class definition which implements IModule");
                 throw new Exception("Assembly does not contain a definition which implements IModule");
             }
 
@@ -85,24 +87,45 @@ namespace DisCore.Runner.Loaders.Module
                         $"Module \"{modInstance.Name}\" defines {(commands.Count == 0 ? "zero" : commands.Count.ToString())} command{(commands.Count == 1 ? "" : "s")} ({subCommands} subcommand{(subCommands == 1 ? "s" : "")})"
                     );
 
-            var module = new DllModule(modInstance)
+            var module = new DllModule(modInstance, assembly)
             {
                 Commands = commands
             };
 
-            _modules.Add(module);
+            await _logHandler.LogDebug($"Registering events for {assembly.FullName}");
+            var eventCount = await _eventHandler.RegisterEvents(module);
+            await _logHandler.LogInfo($"Added {eventCount} to EventHandler");
 
+            //TODO: I feel like this can be done better
             Type permHandler = AssemblyHelper.GetImplementers<IPermissionHandler>(assembly).FirstOrDefault();
             if (permHandler != null)
+            {
+                await _logHandler.LogDebug($"{assembly.FullName} has {permHandler.GetType().FullName} which implements {typeof(IPermissionHandler)}");
                 module.PermissionHandler = (IPermissionHandler)Activator.CreateInstance(permHandler);
+            }
+
+            Type timeoutHandler = AssemblyHelper.GetImplementers<ITimeoutHandler>(assembly).FirstOrDefault();
+            if (timeoutHandler != null)
+            {
+                await _logHandler.LogDebug($"{assembly.FullName} has {timeoutHandler.GetType().FullName} which implements {typeof(ITimeoutHandler)}");
+                module.TimeoutHandler = (ITimeoutHandler)Activator.CreateInstance(timeoutHandler);
+            }
+
+            Type commandParser = AssemblyHelper.GetImplementers<ICommandParser>(assembly).FirstOrDefault();
+            if (commandParser != null)
+            {
+                await _logHandler.LogDebug($"{assembly.FullName} has {commandParser.GetType().FullName} which implements {typeof(ICommandParser)}");
+                module.Parser = Activator.CreateInstance<ICommandParser>();
+            }
 
             Type logHandler = AssemblyHelper.GetImplementers<ILogHandler>(assembly).FirstOrDefault();
             if (logHandler != null)
-                module.LogHandler = (ILogHandler) Activator.CreateInstance(logHandler);
+            {
+                await _logHandler.LogDebug($"{assembly.FullName} has {logHandler.GetType().FullName} which implements {typeof(ILogHandler)}");
+                module.LogHandler = (ILogHandler)Activator.CreateInstance(logHandler);
+            }
 
-            //TODO 
-
-
+            _modules.Add(module);
             return module;
         }
 

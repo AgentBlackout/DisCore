@@ -25,9 +25,11 @@ namespace DisCore.Runner
 
         public DiscordShardedClient ShardClient;
 
+        public readonly IEventHandler EventHandler;
+
         public IPermissionHandler PermissionHandler = null;
         public ITimeoutHandler TimeoutHandler = null;
-        public IEventHandler EventHandler = null;
+        
 
         public ICommandParser Parser = null;
 
@@ -48,12 +50,14 @@ namespace DisCore.Runner
             LibraryLoader = new LibraryLoader(LogHandler);
         }
 
-        public async Task Load()
+        private async Task Load()
         {
             Config = (JsonConfig)(await RootConfigHelper.InitOrLoad("./config.json", LogHandler));
 
             await LoadLibraries();
             await LoadModules();
+
+            await LogHandler.LogInfo($"Loaded {ModuleLoader.GetModules().Count()} modules");
         }
 
         private async Task LoadLibraries()
@@ -65,12 +69,14 @@ namespace DisCore.Runner
                 if (result == LoadResult.Loaded)
                     await LogHandler.LogInfo($"Loaded {Path.GetFileName(fileLoc)} successfully.");
                 else
-                    await LogHandler.LogInfo($"Could not load {Path.GetFileName(fileLoc)}.");
+                    await LogHandler.LogWarning($"Could not load {Path.GetFileName(fileLoc)}.");
             }
         }
 
         private async Task LoadModules()
         {
+            //TODO: Load order and disabled modules.
+
             IEnumerable<string> dllLocations = FileHelper.GetDLLs("./modules");
             foreach (var fileLoc in dllLocations)
             {
@@ -81,9 +87,12 @@ namespace DisCore.Runner
                     continue;
                 }
 
-                TrySet<IPermissionHandler>(ref PermissionHandler, module.PermissionHandler, async () => await LogHandler.LogWarning($"Module {module.Info.Name} is trying to replace IPermissionHandler but one is already set."));
-                TrySet<ITimeoutHandler>(ref TimeoutHandler, module.TimeoutHandler, async () => await LogHandler.LogWarning($"Module {module.Info.Name} is trying to replace ITimeoutHandler but one is already set."));
-                TrySet<IEventHandler>(ref EventHandler, module.EventHandler, async () => await LogHandler.LogWarning($"Module {module.Info.Name} is trying to replace IEventHandler but one is already set."));
+                //TODO: Probably a better way to do this
+                TrySet<IPermissionHandler>(ref PermissionHandler, module.PermissionHandler, async () => await LogHandler.LogWarning($"Module {module.Info.Name} is trying to replace IPermissionHandler but one is already set. Ignoring"));
+                TrySet<ITimeoutHandler>(ref TimeoutHandler, module.TimeoutHandler, async () => await LogHandler.LogWarning($"Module {module.Info.Name} is trying to replace ITimeoutHandler but one is already set. Ignoring."));
+
+                TrySet<ICommandParser>(ref Parser, module.Parser, async () => await LogHandler.LogWarning($"Module {module.Info.Name} is trying to replace ICommandParser but one is already set. Ignoring."));
+                TrySet<ILogHandler>(ref LogHandler, module.LogHandler, async () => await LogHandler.LogWarning($"Module {module.Info.Name} is trying to replace ILogHandler but one is already set. Ignoring."));
 
             }
         }
@@ -102,7 +111,7 @@ namespace DisCore.Runner
 
         }
 
-        public async Task StartShards()
+        private async Task StartShards()
         {
             var discordConfig = new DiscordConfiguration()
             {

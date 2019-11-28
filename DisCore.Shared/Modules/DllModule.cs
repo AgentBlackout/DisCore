@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using DisCore.Shared.Commands;
 using DisCore.Shared.Commands.Parser;
 using DisCore.Shared.Commands.Timeout;
@@ -13,24 +14,25 @@ namespace DisCore.Shared.Modules
     public class DllModule
     {
         public readonly ModuleInfo Info;
+        public readonly Assembly Assembly;
 
-        private readonly IModule _moduleObject;
+        public readonly IModule ModuleObject;
 
         public List<CommandGroup> Commands;
 
-        public String Summary => _moduleObject.Summary;
+        public String Summary => ModuleObject.Summary;
 
         public IPermissionHandler PermissionHandler;
         public ITimeoutHandler TimeoutHandler;
-        public IEventHandler EventHandler;
 
         public ILogHandler LogHandler;
         public ICommandParser Parser;
 
-        public DllModule(IModule modObject)
+        public DllModule(IModule modObject, Assembly assembly)
         {
-            _moduleObject = modObject;
-            Info = ModuleInfoFactory.GetModuleInfo(_moduleObject);
+            ModuleObject = modObject;
+            Assembly = assembly;
+            Info = ModuleInfoFactory.GetModuleInfo(ModuleObject);
 
         }
 

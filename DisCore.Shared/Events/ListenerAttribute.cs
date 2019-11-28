@@ -9,7 +9,7 @@ namespace DisCore.Shared.Events
     {
         public bool IgnoreCommands;
 
-        public ListenerAttribute(bool ignoreCommands)
+        public ListenerAttribute(bool ignoreCommands = true)
         {
             IgnoreCommands = ignoreCommands;
         }
