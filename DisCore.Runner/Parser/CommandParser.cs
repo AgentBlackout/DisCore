@@ -18,7 +18,7 @@ namespace DisCore.Runner.Parser
         private readonly IModuleLoader _moduleLoader;
         private readonly List<CommandGroup> _commands;
 
-            public CommandParser(IConfigManager configManager, IModuleLoader loader)
+        public CommandParser(IConfigManager configManager, IModuleLoader loader)
         {
             _configManager = configManager;
             _moduleLoader = loader;
@@ -26,31 +26,47 @@ namespace DisCore.Runner.Parser
             _commands = _moduleLoader.GetModules().SelectMany(module => module.Commands).ToList();
         }
 
+        public async Task<CommandResult> ParseAndRun(DiscordMessage message)
+        {
+            var (result, cmd) = await ParseMessage(message);
+
+            //TODO Run command and get result
+
+            return await CommandResult.Success();
+        }
+
         public async Task<(CommandParseResult Result, ParsedCommand Command)> ParseMessage(DiscordMessage message)
         {
             string prefix = await ConfigHelper.GetGuildPrefix(_configManager, message.Channel.Guild);
-
-            if (!message.Content.StartsWith(prefix))
-                return (CommandParseResult.NotCommand, null);// It's not a command
-
+            
             //TODO: Aliases
 
             string command = message.Content.Substring(0, prefix.Length);
-            var group = _commands.FirstOrDefault(group => String.Equals(@group.CommandName, command, StringComparison.CurrentCultureIgnoreCase));
+            var group = _commands.FirstOrDefault(group => String.Equals(group.CommandName, command, StringComparison.CurrentCultureIgnoreCase));
 
             if (group == null)
                 return (CommandParseResult.NoCommand, null);
 
+
             //Try and match the longest sequences first first
             var overloads = GetCommandOverloadsRecursive(group).OrderByDescending(overload => overload.GetParameters().Count());
+
+            foreach (var overload in overloads)
+            {
+                var parameters = overload.GetParameterTypes();
+                if (parameters.Count() > 2)
+                {
+
+                }
+            }
 
             return (CommandParseResult.NotFound, null);
         }
 
-        public bool IsCommand(DiscordMessage message)
+        public async Task<bool> IsCommand(DiscordMessage message)
         {
-            //TODO
-            return false;
+            string prefix = await ConfigHelper.GetGuildPrefix(_configManager, message.Channel.Guild);
+            return message.Content.StartsWith(prefix);
         }
 
 

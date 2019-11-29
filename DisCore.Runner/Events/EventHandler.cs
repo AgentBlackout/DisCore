@@ -164,7 +164,19 @@ namespace DisCore.Runner.Events
                 }
             };
 
-        public async Task HandleEvent(DiscordEventArgs eventArgs)
+        public async Task HandleEvent(DiscordEventArgs args)
+        {
+            try
+            {
+                await TryHandleEvent(args);
+            }
+            catch (Exception e)
+            {
+                await _log.LogError("", e);
+            }
+        }
+
+        public async Task TryHandleEvent(DiscordEventArgs eventArgs)
         {
             if (_parser == null)
             {
@@ -179,7 +191,7 @@ namespace DisCore.Runner.Events
             bool isCommand = false;
             if (eventArgs is MessageCreateEventArgs mcea)
             {
-                isCommand = _parser.IsCommand(mcea.Message);
+                isCommand = await _parser.IsCommand(mcea.Message);
 
                 if (isCommand)
                     await _parser.ParseMessage(mcea.Message);

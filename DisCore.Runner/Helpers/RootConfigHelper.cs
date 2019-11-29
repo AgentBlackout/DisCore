@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using DisCore.Shared.Config;
 using DisCore.Shared.Config.Json;
 using DisCore.Shared.Logging;
+using Newtonsoft.Json.Linq;
 
 namespace DisCore.Runner.Helpers
 {
@@ -41,8 +42,14 @@ namespace DisCore.Runner.Helpers
             await config.Set("token", "abc-123-abc");
             await config.Set("owners", new long[] { 123, 1441, 999 });
             await config.Set("shardCount", 1);
+            
+        }
 
-            await config.Save();
+        public static async Task InitConfigManager(IConfigManager configManager)
+        {
+            var global = await configManager.GetGlobalConfig();
+            await global.Set("prefix", "!");
+            await global.Save();
         }
 
 

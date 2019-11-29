@@ -33,7 +33,7 @@ namespace DisCore.Runner
 
         public IPermissionHandler PermissionHandler = null;
         public ITimeoutHandler TimeoutHandler = null;
-        
+
 
         public ICommandParser Parser = null;
 
@@ -73,12 +73,17 @@ namespace DisCore.Runner
                 ConfigManager = new JsonConfigManager(RunnerConfig);
             }
 
+            var global = await ConfigManager.GetGlobalConfig();
+            var prefix = await global.Get<string>("prefix");
+            if (prefix == null)
+                await RootConfigHelper.InitConfigManager(ConfigManager);
+
             if (Parser == null)
             {
                 await LogHandler.LogInfo("CommandParser not set, using default");
                 Parser = new CommandParser(ConfigManager, ModuleLoader);
             }
-                
+
 
             EventHandler.SetCommandParser(Parser);
         }
@@ -149,7 +154,7 @@ namespace DisCore.Runner
             await ShardClient.StartAsync();
             await LogHandler.LogInfo($"{ShardClient.ShardClients.Count} Shards online");
 
-            
+
         }
 
         /// <summary>
