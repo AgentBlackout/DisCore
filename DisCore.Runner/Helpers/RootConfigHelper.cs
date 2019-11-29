@@ -13,7 +13,8 @@ namespace DisCore.Runner.Helpers
         private const string TOKEN_KEY = "token";
         private const string OWNERS_KEY = "owners";
         private const string SHARD_COUNT_KEY = "shardCount";
-
+        private const string MONGO_CONFIG_KEY = "mongoConStr";
+        private const string USE_MONGO_KEY = "shouldUseMongo";
 
         public static async Task<IConfig> InitOrLoad(string fileLoc, ILogHandler log)
         {
@@ -58,6 +59,16 @@ namespace DisCore.Runner.Helpers
         public static async Task<int> GetShardCount(IConfig config)
         {
             return await config.Get<int>(SHARD_COUNT_KEY);
+        }
+
+        public static async Task<string> GetMongoDetails(IConfig config)
+        {
+            return await config.Get<string>(MONGO_CONFIG_KEY);
+        }
+
+        public static async Task<bool> UseMongo(IConfig config)
+        {
+            return await config.Get<bool>(USE_MONGO_KEY);
         }
     }
 }

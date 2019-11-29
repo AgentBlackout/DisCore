@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using DisCore.Runner.Config;
 using DisCore.Runner.Helpers;
 using DisCore.Runner.Loaders;
 using DisCore.Runner.Loaders.Library;
 using DisCore.Runner.Loaders.Module;
+using DisCore.Runner.Parser;
 using DisCore.Shared.Commands.Parser;
 using DisCore.Shared.Commands.Timeout;
+using DisCore.Shared.Config;
 using DisCore.Shared.Config.Json;
 using DisCore.Shared.Events;
 using DisCore.Shared.Helpers;
@@ -21,7 +24,8 @@ namespace DisCore.Runner
 {
     public sealed class Runner
     {
-        public JsonConfig Config;
+        public JsonConfig RunnerConfig;
+        public IConfigManager ConfigManager;
 
         public DiscordShardedClient ShardClient;
 
@@ -52,12 +56,31 @@ namespace DisCore.Runner
 
         private async Task Load()
         {
-            Config = (JsonConfig)(await RootConfigHelper.InitOrLoad("./config.json", LogHandler));
+            RunnerConfig = (JsonConfig)(await RootConfigHelper.InitOrLoad("./config.json", LogHandler));
 
             await LoadLibraries();
             await LoadModules();
 
             await LogHandler.LogInfo($"Loaded {ModuleLoader.GetModules().Count()} modules");
+
+            if (await RootConfigHelper.UseMongo(RunnerConfig))
+            {
+                var mongoDetails = await RootConfigHelper.GetMongoDetails(RunnerConfig);
+                ConfigManager = new MongoConfigManager(mongoDetails);
+            }
+            else
+            {
+                ConfigManager = new JsonConfigManager(RunnerConfig);
+            }
+
+            if (Parser == null)
+            {
+                await LogHandler.LogInfo("CommandParser not set, using default");
+                Parser = new CommandParser(ConfigManager, ModuleLoader);
+            }
+                
+
+            EventHandler.SetCommandParser(Parser);
         }
 
         private async Task LoadLibraries()
@@ -105,8 +128,6 @@ namespace DisCore.Runner
 
             await StartShards();
 
-            await EventHandler.SetupShardClient(ShardClient);
-
             await Task.Delay(int.MaxValue);
 
         }
@@ -116,14 +137,19 @@ namespace DisCore.Runner
             var discordConfig = new DiscordConfiguration()
             {
                 AutoReconnect = true,
-                ShardCount = await RootConfigHelper.GetShardCount(Config),
-                Token = await RootConfigHelper.GetToken(Config)
+                ShardCount = await RootConfigHelper.GetShardCount(RunnerConfig),
+                Token = await RootConfigHelper.GetToken(RunnerConfig)
             };
 
             ShardClient = new DiscordShardedClient(discordConfig);
+
+            await EventHandler.SetupShardClient(ShardClient);
+
             await LogHandler.LogInfo("Starting Shards... Please wait...");
             await ShardClient.StartAsync();
             await LogHandler.LogInfo($"{ShardClient.ShardClients.Count} Shards online");
+
+            
         }
 
         /// <summary>

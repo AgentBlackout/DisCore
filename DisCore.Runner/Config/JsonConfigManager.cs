@@ -1,19 +1,19 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using DisCore.Shared.Config;
 using DSharpPlus.Entities;
 
-namespace DisCore.Shared.Config
+namespace DisCore.Runner.Config
 {
-    public class ConfigManager : IConfigManager
+    public class JsonConfigManager : IConfigManager
     {
         public const string CONFIGS_USERS = "users";
         public const string CONFIGS_GUILDS = "guilds";
         public const string CONFIGS_CHANNELS = "channels";
         public const string CONFIGS_GLOBALS = "globals";
 
-        private IConfig _rootConfig;
+        private readonly IConfig _rootConfig;
 
-        public ConfigManager(IConfig rootConfig)
+        public JsonConfigManager(IConfig rootConfig)
         {
             _rootConfig = rootConfig;
         }

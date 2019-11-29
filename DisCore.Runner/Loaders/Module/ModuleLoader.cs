@@ -74,7 +74,7 @@ namespace DisCore.Runner.Loaders.Module
             if (moduleType == null)
             {
                 await _logHandler.LogError(
-                    $"{assembly.FullName} does not contain a class definition which implements IModule");
+                    $"{assembly.GetShortName()} does not contain a class definition which implements IModule");
                 throw new Exception("Assembly does not contain a definition which implements IModule");
             }
 
@@ -92,36 +92,36 @@ namespace DisCore.Runner.Loaders.Module
                 Commands = commands
             };
 
-            await _logHandler.LogDebug($"Registering events for {assembly.FullName}");
+            await _logHandler.LogDebug($"Registering events for {assembly.GetShortName()}");
             var eventCount = await _eventHandler.RegisterEvents(module);
-            await _logHandler.LogInfo($"Added {eventCount} to EventHandler");
+            await _logHandler.LogInfo($"Registered {eventCount} events for {assembly.GetShortName()}");
 
             //TODO: I feel like this can be done better
             Type permHandler = AssemblyHelper.GetImplementers<IPermissionHandler>(assembly).FirstOrDefault();
             if (permHandler != null)
             {
-                await _logHandler.LogDebug($"{assembly.FullName} has {permHandler.GetType().FullName} which implements {typeof(IPermissionHandler)}");
+                await _logHandler.LogDebug($"{assembly.GetShortName()} has {permHandler.FullName} which implements {typeof(IPermissionHandler)}");
                 module.PermissionHandler = (IPermissionHandler)Activator.CreateInstance(permHandler);
             }
 
             Type timeoutHandler = AssemblyHelper.GetImplementers<ITimeoutHandler>(assembly).FirstOrDefault();
             if (timeoutHandler != null)
             {
-                await _logHandler.LogDebug($"{assembly.FullName} has {timeoutHandler.GetType().FullName} which implements {typeof(ITimeoutHandler)}");
+                await _logHandler.LogDebug($"{assembly.GetShortName()} has {timeoutHandler.FullName} which implements {typeof(ITimeoutHandler)}");
                 module.TimeoutHandler = (ITimeoutHandler)Activator.CreateInstance(timeoutHandler);
             }
 
             Type commandParser = AssemblyHelper.GetImplementers<ICommandParser>(assembly).FirstOrDefault();
             if (commandParser != null)
             {
-                await _logHandler.LogDebug($"{assembly.FullName} has {commandParser.GetType().FullName} which implements {typeof(ICommandParser)}");
+                await _logHandler.LogDebug($"{assembly.GetShortName()} has {commandParser.FullName} which implements {typeof(ICommandParser)}");
                 module.Parser = Activator.CreateInstance<ICommandParser>();
             }
 
             Type logHandler = AssemblyHelper.GetImplementers<ILogHandler>(assembly).FirstOrDefault();
             if (logHandler != null)
             {
-                await _logHandler.LogDebug($"{assembly.FullName} has {logHandler.GetType().FullName} which implements {typeof(ILogHandler)}");
+                await _logHandler.LogDebug($"{assembly.GetShortName()} has {logHandler.FullName} which implements {typeof(ILogHandler)}");
                 module.LogHandler = (ILogHandler)Activator.CreateInstance(logHandler);
             }
 

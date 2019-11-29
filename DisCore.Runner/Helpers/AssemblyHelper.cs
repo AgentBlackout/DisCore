@@ -60,7 +60,16 @@ namespace DisCore.Runner.Helpers
             return domain.Load(assemblyBytes);
         }
 
-
-
+        #region Assembly Extension
+        /// <summary>
+        /// Gets the Assembly's short name
+        /// </summary>
+        /// <param name="assembly"></param>
+        /// <returns></returns>
+        public static string GetShortName(this Assembly assembly)
+        {
+            return assembly.FullName.Split(",").First();
+        }
+        #endregion
     }
 }

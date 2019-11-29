@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DisCore.Runner.Loaders.Module;
 using DisCore.Shared.Commands;
 using DisCore.Shared.Commands.Parser;
 using DisCore.Shared.Config;
@@ -14,13 +15,18 @@ namespace DisCore.Runner.Parser
     public sealed class CommandParser : ICommandParser
     {
         private readonly IConfigManager _configManager;
+        private readonly IModuleLoader _moduleLoader;
+        private readonly List<CommandGroup> _commands;
 
-        public CommandParser(IConfigManager configManager)
+            public CommandParser(IConfigManager configManager, IModuleLoader loader)
         {
             _configManager = configManager;
+            _moduleLoader = loader;
+
+            _commands = _moduleLoader.GetModules().SelectMany(module => module.Commands).ToList();
         }
 
-        public async Task<(CommandParseResult Result, ParsedCommand Command)> ParseMessage(DiscordMessage message, IEnumerable<CommandGroup> commands)
+        public async Task<(CommandParseResult Result, ParsedCommand Command)> ParseMessage(DiscordMessage message)
         {
             string prefix = await ConfigHelper.GetGuildPrefix(_configManager, message.Channel.Guild);
 
@@ -30,7 +36,7 @@ namespace DisCore.Runner.Parser
             //TODO: Aliases
 
             string command = message.Content.Substring(0, prefix.Length);
-            var group = commands.FirstOrDefault(group => String.Equals(@group.CommandName, command, StringComparison.CurrentCultureIgnoreCase));
+            var group = _commands.FirstOrDefault(group => String.Equals(@group.CommandName, command, StringComparison.CurrentCultureIgnoreCase));
 
             if (group == null)
                 return (CommandParseResult.NoCommand, null);
@@ -39,6 +45,12 @@ namespace DisCore.Runner.Parser
             var overloads = GetCommandOverloadsRecursive(group).OrderByDescending(overload => overload.GetParameters().Count());
 
             return (CommandParseResult.NotFound, null);
+        }
+
+        public bool IsCommand(DiscordMessage message)
+        {
+            //TODO
+            return false;
         }
 
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using DisCore.Shared.Commands.Parser;
 using DisCore.Shared.Modules;
 using DSharpPlus;
 using DSharpPlus.EventArgs;
@@ -31,5 +32,11 @@ namespace DisCore.Shared.Events
         /// <param name="args"></param>
         /// <returns></returns>
         Task HandleEvent(DiscordEventArgs args);
+
+        /// <summary>
+        /// Set the IEventHandler's Parser
+        /// </summary>
+        /// <param name="parser"></param>
+        void SetCommandParser(ICommandParser parser);
     }
 }
