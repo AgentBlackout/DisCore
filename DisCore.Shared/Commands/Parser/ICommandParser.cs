@@ -27,7 +27,8 @@ namespace DisCore.Shared.Commands.Parser
 
     public interface ICommandParser
     {
+        Task<CommandResult> ParseAndRun(DiscordMessage message);
         Task<(CommandParseResult Result, ParsedCommand Command)> ParseMessage(DiscordMessage message);
-        bool IsCommand(DiscordMessage message);
+        Task<bool> IsCommand(DiscordMessage message);
     }
 }

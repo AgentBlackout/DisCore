@@ -31,28 +31,5 @@ namespace ExampleModule
             throw new NotImplementedException();
         }
 
-        [Listener(true)]
-        public async Task OnMessage(MessageCreateEventArgs e)
-        {
-            //Filter words and somesuch
-            var start = DateTime.UtcNow;
-            await e.Channel.SendMessageAsync($"Got message {e.Message.Content}");
-            await Task.Delay(5000);
-
-            var end = DateTime.UtcNow;
-            var delta = end - start;
-
-            await e.Channel.SendMessageAsync($"Delta was {delta.TotalMilliseconds}, expected {5000}, diff {5000 - delta.TotalMilliseconds}");
-            return;
-        }
-
-
-        [Listener(true)]
-        public async Task OnMessageExtra(MessageCreateEventArgs e)
-        {
-            //Filter words and somesuch
-            await e.Channel.SendMessageAsync($"MessageExtra no delay {new DateTime()}");
-            return;
-        }
     }
 }

@@ -19,7 +19,16 @@ namespace DisCore.Shared.Helpers
         public static async Task<string> GetGuildPrefix(IConfigManager manager, DiscordGuild guild)
         {
             var guildConfig = await manager.GetGuildConfig(guild);
-            return await guildConfig.Get<string>(PREFIX_KEY);
+            var prefix = await guildConfig.Get<string>(PREFIX_KEY);
+            if (prefix == null)
+            {
+                var global = await manager.GetGlobalConfig();
+                prefix = await global.Get<string>(PREFIX_KEY);
+
+                await guildConfig.Set(PREFIX_KEY, prefix);
+            }
+
+            return prefix;
         }
     }
 }
