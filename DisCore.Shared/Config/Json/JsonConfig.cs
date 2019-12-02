@@ -60,6 +60,7 @@ namespace DisCore.Shared.Config.Json
 
             var bytes = Encoding.Unicode.GetBytes(json);
 
+            _fileStream.Seek(0, SeekOrigin.Begin);
             await _fileStream.WriteAsync(bytes, 0, bytes.Length);
             _fileStream.Flush();
 

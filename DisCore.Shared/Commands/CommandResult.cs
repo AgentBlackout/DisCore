@@ -13,30 +13,25 @@ namespace DisCore.Shared.Commands
 
     public class CommandResult
     {
-        private CommandResultType _resultType;
+        public readonly CommandResultType Result;
 
-        private object _result;
+        public readonly object Object;
 
         private CommandResult(CommandResultType resType, object res = null)
         {
-            _resultType = resType;
-            _result = res;
+            Result = resType;
+            Object = res;
         }
 
-        public static async Task<CommandResult> Success() =>
-            await Task.Run(() => new CommandResult(CommandResultType.Success));
+        public static CommandResult Success() => new CommandResult(CommandResultType.Success);
 
-        public static async Task<CommandResult> BadArgs(object res = null) =>
-            await Task.Run(() => new CommandResult(CommandResultType.BadArgs, res));
+        public static CommandResult BadArgs(object res = null) => new CommandResult(CommandResultType.BadArgs, res);
 
-        public static async Task<CommandResult> Cooldown(object res = null) =>
-            await Task.Run(() => new CommandResult(CommandResultType.Cooldown, res));
+        public static CommandResult Cooldown(object res = null) => new CommandResult(CommandResultType.Cooldown, res);
 
-        public static async Task<CommandResult> PermissionDenied(object res = null) =>
-            await Task.Run(() => new CommandResult(CommandResultType.PermissionDenied, res));
+        public static CommandResult PermissionDenied(object res = null) => new CommandResult(CommandResultType.PermissionDenied, res);
 
-        public static async Task<CommandResult> Exception(object res = null) =>
-            await Task.Run(() => new CommandResult(CommandResultType.Exception, res));
+        public static CommandResult Exception(object res = null) => new CommandResult(CommandResultType.Exception, res);
 
     }
 

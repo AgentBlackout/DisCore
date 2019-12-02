@@ -28,20 +28,20 @@ namespace ExampleModule
             //CommandOverload is going to succeed, so set a timeout at the end
             Timeout.SetTimeout(TimeSpan.FromMinutes(1));
 
-            return await CommandResult.Success();
+            return CommandResult.Success();
         }
         //!test hello world
         public async Task<CommandResult> Test(CommandContext cmd, string details)
         {
             if (details.Length < 5)
-                return await CommandResult.BadArgs("Needs to be longer than 5 chars");
+                return CommandResult.BadArgs("Needs to be longer than 5 chars");
 
             await cmd.Reply("Hello " + MessageHelper.StipMentions(details));
 
             //Timeout changes
             Timeout.SetTimeout(TimeSpan.FromSeconds(30));
 
-            return await CommandResult.Success();
+            return CommandResult.Success();
         }
 
         //This will be triggered by returning CommandResult.BadArgs()

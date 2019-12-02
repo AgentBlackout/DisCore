@@ -194,7 +194,7 @@ namespace DisCore.Runner.Events
                 isCommand = await _parser.IsCommand(mcea.Message);
 
                 if (isCommand)
-                    await _parser.ParseMessage(mcea.Message);
+                    _= _parser.ParseAndRun(mcea.Message);//Parse message asynchronously  
             }
 
             var type = eventArgs.GetType();

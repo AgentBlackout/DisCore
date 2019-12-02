@@ -13,7 +13,7 @@ namespace ExampleModule
     {
         public async Task<CommandResult> SubTest(CommandContext ctx, string details)
         {
-            return await CommandResult.Success();
+            return CommandResult.Success();
         }
 
         public async Task<string> Usage()

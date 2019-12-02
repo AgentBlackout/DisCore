@@ -81,9 +81,8 @@ namespace DisCore.Runner
             if (Parser == null)
             {
                 await LogHandler.LogInfo("CommandParser not set, using default");
-                Parser = new CommandParser(ConfigManager, ModuleLoader);
+                Parser = new CommandParser(ConfigManager, ModuleLoader, LogHandler);
             }
-
 
             EventHandler.SetCommandParser(Parser);
         }

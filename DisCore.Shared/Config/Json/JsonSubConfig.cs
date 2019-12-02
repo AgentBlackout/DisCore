@@ -44,6 +44,7 @@ namespace DisCore.Shared.Config.Json
         {
             await Remove(key);
             _rootObject.Add(key, JToken.FromObject(val));
+            await _parent.Set(_rootKey, _rootObject);
         }
     }
 }

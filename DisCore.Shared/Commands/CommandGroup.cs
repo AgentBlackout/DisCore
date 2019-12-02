@@ -51,6 +51,9 @@ namespace DisCore.Shared.Commands
             Timeout = timeout ?? new TimeoutAttribute();
         }
 
+        public Task<string> GetUsage() => _usageFunc();
+        public Task<string> GetSummary() => _summaryFunc();
+
         public List<CommandGroup> GetSubGroups() => _subCommandGroups;
 
         public void AddOverload(CommandOverload cmd) => _overloads.Add(cmd);
@@ -59,7 +62,7 @@ namespace DisCore.Shared.Commands
 
         public void AddSubCommand(CommandGroup cmdG) => _subCommandGroups.Add(cmdG);
 
-        public async Task<CommandResult> Call(List<CommandParameter[]> potentialArgs)
+        public async Task<CommandResult> Call(List<CommandParameter> potentialArgs)
         {
             //TODO
             throw new NotImplementedException();

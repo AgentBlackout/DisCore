@@ -16,7 +16,7 @@ namespace UtilsModule.Commands
             var member = await ctx.Guild.GetMemberAsync(id);
             if (member == null)
             {
-                return await CommandResult.BadArgs("Could not find user");
+                return CommandResult.BadArgs("Could not find user");
             }
 
             return await Kick(ctx, member, reason);
@@ -29,11 +29,12 @@ namespace UtilsModule.Commands
             await ctx.Guild.RemoveMemberAsync(member, fullReason);
             await ctx.Reply($"Kicked {member.Username}. {reason}");
 
-            return await CommandResult.Success();
+            return CommandResult.Success();
         }
 
+        //It will match member before user
         public async Task<CommandResult> Kick(CommandContext ctx, DiscordUser user, string reason = "") =>
-            await CommandResult.BadArgs("Cannot kick user not in Guild.");
+            CommandResult.BadArgs("Cannot kick user not in Guild.");
 
         public async Task<string> Summary() => await Task.FromResult("Kick a member from the guild");
 

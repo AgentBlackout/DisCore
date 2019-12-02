@@ -45,7 +45,7 @@ namespace DisCore.Runner.Factories
                     if (mInfo.Name.ToLower() == "summary" || mInfo.Name.ToLower() == "usage")
                         continue;
                     if (mInfo.ReturnType == typeof(Task<CommandResult>))
-                        cmdGroup.AddOverload(CommandFactory.GetCommand(mInfo));
+                        cmdGroup.AddOverload(CommandFactory.GetCommand(mInfo, cmdGroup));
                 }
 
                 commands.Add(cmdGroup);

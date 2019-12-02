@@ -7,12 +7,12 @@ namespace DisCore.Runner.Factories
 {
     public class CommandFactory
     {
-        public static CommandOverload GetCommand(MethodInfo mInfo)
+        public static CommandOverload GetCommand(MethodInfo mInfo, CommandGroup parent)
         {
             var require = (RequiredPermissions)mInfo.GetCustomAttribute(typeof(RequiredPermissions));
             var timeout = (TimeoutAttribute)mInfo.GetCustomAttribute(typeof(TimeoutAttribute));
 
-            return new CommandOverload(mInfo, require, timeout);
+            return new CommandOverload(mInfo, parent, require, timeout);
         }
     }
 }

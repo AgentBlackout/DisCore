@@ -16,7 +16,7 @@ namespace UtilsModule.Commands
             var member = await ctx.Guild.GetMemberAsync(id);
             if (member == null)
             {
-                return await CommandResult.BadArgs("Could not find user");
+                return CommandResult.BadArgs("Could not find user");
             }
 
             return await Ban(ctx, member, reason);
@@ -29,11 +29,11 @@ namespace UtilsModule.Commands
             await ctx.Guild.BanMemberAsync(member, 0, fullReason);
             await ctx.Reply($"Banned {member.Username}. {reason}");
 
-            return await CommandResult.Success();
+            return CommandResult.Success();
         }
 
         public async Task<CommandResult> Ban(CommandContext ctx, DiscordUser user, string reason = "") =>
-            await CommandResult.BadArgs("Cannot ban user not in Guild.");
+            CommandResult.BadArgs("Cannot ban user not in Guild.");
 
         public async Task<string> Summary() => await Task.FromResult("Ban a member from the guild");
 
