@@ -1,25 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
-using DisCore.Shared.Commands.Timeout;
-using DisCore.Shared.Logging;
-using DisCore.Shared.Permissions;
 using DSharpPlus.Entities;
 
 namespace DisCore.Shared.Commands
 {
-    public struct RootGroup
-    {
-        public readonly ITimeoutHandler TimeoutHandler;
-        public readonly IPermissionHandler PermissionHandler;
-        public readonly ILogHandler LogHandler;
-
-        public RootGroup(ITimeoutHandler timeoutHandler, IPermissionHandler permissionHandler, ILogHandler logHandler)
-        {
-            TimeoutHandler = timeoutHandler ?? throw new ArgumentNullException(nameof(timeoutHandler));
-            PermissionHandler = permissionHandler ?? throw new ArgumentNullException(nameof(permissionHandler));
-            LogHandler = logHandler ?? throw new ArgumentNullException(nameof(logHandler));
-        }
-    }
 
     public class CommandContext
     {
@@ -33,7 +17,7 @@ namespace DisCore.Shared.Commands
 
         public readonly String Command;
 
-        public RootGroup Instance;
+        public HandlerGroup Handlers;
 
         public DiscordUser Author => (DiscordUser)Member ?? User;
 
@@ -43,17 +27,17 @@ namespace DisCore.Shared.Commands
 
         #region Constructors
 
-        public CommandContext(String command, RootGroup instance, DiscordUser user, DiscordChannel channel, DiscordMessage message)
+        public CommandContext(String command, HandlerGroup handlers, DiscordUser user, DiscordChannel channel, DiscordMessage message)
         {
             Command = command;
             User = user;
             Channel = channel;
             Message = message;
 
-            Instance = instance;
+            Handlers  = handlers;
         }
 
-        public CommandContext(String command, RootGroup instance, DiscordMember member, DiscordChannel channel, DiscordGuild guild, DiscordMessage message)
+        public CommandContext(String command, HandlerGroup handlers, DiscordMember member, DiscordChannel channel, DiscordGuild guild, DiscordMessage message)
         {
             Command = command;
             Member = member;
@@ -61,7 +45,7 @@ namespace DisCore.Shared.Commands
             Guild = guild;
             Message = message;
 
-            Instance = instance;
+            Handlers = handlers;
         }
 
         #endregion

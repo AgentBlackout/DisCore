@@ -16,7 +16,7 @@ namespace ExampleModule
         public async Task<CommandResult> Test(CommandContext cmd)
         {
 
-            if (cmd.Instance.PermissionHandler.GetPermissionLevel(cmd.Member, cmd.Guild) == PermissionLevels.Moderator)
+            if (cmd.Handlers.PermissionHandler.GetPermissionLevel(cmd.Member, cmd.Guild) == PermissionLevels.Moderator)
             {
                 await cmd.Reply("You are a moderator");
             }
