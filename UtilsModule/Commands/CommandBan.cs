@@ -26,7 +26,7 @@ namespace UtilsModule.Commands
         {
             var author = ctx.Author;
             var fullReason = $"\"{reason}\" - {author.Username}#{author.Discriminator} ({author.Id})";
-            await ctx.Guild.BanMemberAsync(member, 0, fullReason);
+            //await ctx.Guild.BanMemberAsync(member, 0, fullReason); // for testing
             await ctx.Reply($"Banned {member.Username}. {reason}");
 
             return CommandResult.Success();

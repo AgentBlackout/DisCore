@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -13,6 +14,7 @@ using DisCore.Shared.Events;
 using DisCore.Shared.Logging;
 using DisCore.Shared.Modules;
 using DSharpPlus;
+using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 
 namespace DisCore.Runner.Events
@@ -20,15 +22,26 @@ namespace DisCore.Runner.Events
     public class EventHandler : IEventHandler
     {
 
-        private Dictionary<string, List<EventMethod>> _funcMap;
-        private ILogHandler _log;
+        private readonly Dictionary<string, List<EventMethod>> _funcMap;
+        private readonly ILogHandler _log;
+        private readonly EventMethodManager _methodManager;
+
+        private readonly List<(DiscordChannel channel, TaskCompletionSource<DiscordMessage> completionToken)>
+            _watchedChannels;
+
         private ICommandParser _parser;
+
+        private readonly Dictionary<DiscordChannel, ConcurrentQueue<DiscordMessage>> _channelQueues;
 
         public EventHandler(ILogHandler log)
         {
             _log = log ?? throw new ArgumentNullException(nameof(log));
 
+            _methodManager = new EventMethodManager(_log);
+
             _funcMap = new Dictionary<string, List<EventMethod>>();
+            _channelQueues = new Dictionary<DiscordChannel, ConcurrentQueue<DiscordMessage>>();
+            _watchedChannels = new List<(DiscordChannel channel, TaskCompletionSource<DiscordMessage> completionToken)>();
         }
 
 
@@ -36,133 +49,68 @@ namespace DisCore.Runner.Events
         {
             shardedClient.MessageCreated += async e => await HandleEvent(e);
             shardedClient.MessageDeleted += async e => await HandleEvent(e);
-            //TODO
+            //TODO Rest of the events
         }
+        public async Task SetParser(ICommandParser parser)
+        {
+            await _log.LogDebug($"Updating EventHandler Parser to instance of {parser.GetType().FullName}");
+            _parser = parser ?? throw new ArgumentNullException(nameof(parser));
+        }
+
+        public async Task<DiscordMessage> GetNextMessageAsync(DiscordChannel channel, TimeSpan timeout)
+        {
+            var completeSource = new TaskCompletionSource<DiscordMessage>();
+
+            //Create a task to automatically return null after the timeout
+            _ = Task.Factory.StartNew(
+                async () => {
+                    await Task.Delay((int)timeout.TotalMilliseconds);
+                    completeSource.TrySetResult(null);
+                }
+            );
+
+            _watchedChannels.Add((channel, completeSource));
+            await _log.LogDebug("Registering waiting for message");
+            return await completeSource.Task;
+        }
+
 
         public async Task<int> RegisterEvents(DllModule module)
         {
-            int successes = 0;
-
-            //turn valid methods to funcs and add to dictionary
-            foreach (var method in await GetValidMethods(module.Assembly))
+            int successes;
+            try
             {
-                try
-                {
-                    await TryRegisterEvent(method, module.ModuleObject);
-                }
-                catch (Exception e)
-                {
-                    await _log.LogError($"Error registering event method {method.Name}", e);
-                    continue;
-                }
-
-                successes++;//Can only get here if there was no error
+                successes = await TryRegisterEvents(module);
+            }
+            catch (Exception e)
+            {
+                await _log.LogError($"Could not register events for module {module.Assembly.GetShortName()}", e);
+                return 0;
             }
 
             return successes;
         }
 
-        private async Task<IEnumerable<MethodInfo>> GetValidMethods(Assembly assembly)
+        private async Task<int> TryRegisterEvents(DllModule module)
         {
-            var methods = AssemblyHelper.GetMethodsWithAttribute<ListenerAttribute>(assembly);
-            var valid = new List<MethodInfo>();
+            int successes = 0;
 
-            //Check validity of methods at creation
-            foreach (var method in methods)
+            foreach (var method in await _methodManager.GetMethods(module))
             {
-                if (method.ReturnType != typeof(Task))
+                var key = method.Parameter.Name;
+
+                if (!_funcMap.TryGetValue(key, out var methods)) //If key doesn't exist
                 {
-                    await _log.LogWarning(
-                        $"{method.Module.Name} contains method {method.Name} which has ListenerAttribute but the wrong return type. Ignoring");
-                    continue;
+                    methods = new List<EventMethod>();
+                    _funcMap.Add(key, methods);
                 }
 
-                var parameters = method.GetParameters();
-                if (parameters.Length != 1)
-                {
-                    await _log.LogWarning(
-                        $"{method.Module.Name} contains method {method.Name} which has ListenerAttribute but the wrong number of parameters. Ignoring.");
-                    continue;
-                }
+                methods.Add(method);
 
-                if (!parameters.First().ParameterType.IsSubclassOf(typeof(DiscordEventArgs)))
-                {
-                    await _log.LogWarning(
-                        $"{method.Module.Name} contains method {method.Name} which has ListenerAttribute but the wrong parameter type (should be subclass of DiscordEventArgs). Ignoring.");
-                    continue;
-                }
-
-                // Else it's valid
-                valid.Add(method);
             }
 
-            return valid;
+            return successes;
         }
-
-        private async Task<bool> TryRegisterEvent(MethodInfo method, IModule module)
-        {
-            var parameter = method.GetParameters().First();
-            var key = parameter.ParameterType.Name;
-
-            if (!_funcMap.TryGetValue(key, out var methods)) //If key doesn't exist
-            {
-                methods = new List<EventMethod>();
-                _funcMap.Add(key, methods);
-            }
-
-            var eventMethod = GetEventMethod(method, module);
-
-            methods.Add(eventMethod);
-
-            await _log.LogDebug($"Added method {method.Name} from {method.Module.Assembly.GetShortName()} to actionmap");
-
-            return true;
-        }
-
-        private EventMethod GetEventMethod(MethodInfo info, IModule module)
-        {
-            var wrapperFunc = GetWrapper(info, module);
-            var listenerAttrib = info.GetCustomAttribute<ListenerAttribute>();
-
-            return new EventMethod(info, listenerAttrib, wrapperFunc);
-
-        }
-
-        private Func<DiscordEventArgs, Task> GetWrapper(MethodInfo info, IModule module)
-        {
-            //This is less than ideal but I don't know what else to do
-            var parameter = info.GetParameters().First();
-
-            switch (parameter.ParameterType.Name)
-            {
-                case nameof(MessageCreateEventArgs):
-                    return CreateWrapper<MessageCreateEventArgs>(info, module);
-                case nameof(MessageDeleteEventArgs):
-                    return CreateWrapper<MessageDeleteEventArgs>(info, module);
-                case nameof(MessageReactionAddEventArgs):
-                    return CreateWrapper<MessageReactionAddEventArgs>(info, module);
-                case nameof(MessageReactionRemoveEventArgs):
-                    return CreateWrapper<MessageReactionRemoveEventArgs>(info, module);
-
-                default:
-                    throw new InvalidOperationException();
-            }
-        }
-
-        private Func<DiscordEventArgs, Task> CreateWrapper<T>(MethodInfo method, IModule module) =>
-            async (obj) =>
-            {
-                var func = FuncHelper.MethodInfoToFunc<Func<T, Task>>(method, module);
-                try
-                {
-                    await func((T)(object)obj);
-                }
-                catch (Exception e)
-                {
-                    await _log.LogError("", e);
-                    return;
-                }
-            };
 
         public async Task HandleEvent(DiscordEventArgs args)
         {
@@ -176,7 +124,9 @@ namespace DisCore.Runner.Events
             }
         }
 
-        public async Task TryHandleEvent(DiscordEventArgs eventArgs)
+
+
+        private async Task TryHandleEvent(DiscordEventArgs eventArgs)
         {
             if (_parser == null)
             {
@@ -194,7 +144,7 @@ namespace DisCore.Runner.Events
                 isCommand = await _parser.IsCommand(mcea.Message);
 
                 if (isCommand)
-                    _= _parser.ParseAndRun(mcea.Message);//Parse message asynchronously  
+                    _ = _parser.ParseAndRun(mcea.Message);//Parse & run message asynchronously  
             }
 
             var type = eventArgs.GetType();
@@ -213,11 +163,6 @@ namespace DisCore.Runner.Events
                 _ = func(eventArgs);
             }
             await _log.LogDebug("finished starting tasks");
-        }
-
-        public void SetCommandParser(ICommandParser parser)
-        {
-            _parser = parser ?? throw new ArgumentNullException(nameof(parser));
         }
 
         private bool ShouldIgnore(DiscordEventArgs eventArgs)

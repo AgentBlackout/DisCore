@@ -26,7 +26,7 @@ namespace UtilsModule.Commands
         {
             var author = ctx.Author;
             var fullReason = $"\"{reason}\" - {author.Username}#{author.Discriminator} ({author.Id})";
-            await ctx.Guild.RemoveMemberAsync(member, fullReason);
+            //await ctx.Guild.RemoveMemberAsync(member, fullReason); // For testing, has been removed
             await ctx.Reply($"Kicked {member.Username}. {reason}");
 
             return CommandResult.Success();

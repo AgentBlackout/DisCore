@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DisCore.Shared.Commands.Parser;
 using DisCore.Shared.Modules;
 using DSharpPlus;
+using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 
 namespace DisCore.Shared.Events
@@ -34,9 +35,12 @@ namespace DisCore.Shared.Events
         Task HandleEvent(DiscordEventArgs args);
 
         /// <summary>
-        /// Set the IEventHandler's Parser
+        /// Replace the current command parser with a new one
         /// </summary>
-        /// <param name="parser"></param>
-        void SetCommandParser(ICommandParser parser);
+        /// <param name="parser">New parser</param>
+        /// <returns></returns>
+        Task SetParser(ICommandParser parser);
+
+        Task<DiscordMessage?> GetNextMessageAsync(DiscordChannel channel, TimeSpan timeout);
     }
 }

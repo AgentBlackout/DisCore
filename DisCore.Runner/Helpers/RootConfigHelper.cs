@@ -28,6 +28,7 @@ namespace DisCore.Runner.Helpers
                 await log.LogInfo(
                     "Config file does not exist, creating. You'll want to setup all of the values in there.");
                 await InitConfig(conf);
+                await conf.Save();
                 throw new Exception("Please fill out the config then restart.");
             }
 
@@ -42,7 +43,6 @@ namespace DisCore.Runner.Helpers
             await config.Set("token", "abc-123-abc");
             await config.Set("owners", new long[] { 123, 1441, 999 });
             await config.Set("shardCount", 1);
-            
         }
 
         public static async Task InitConfigManager(IConfigManager configManager)

@@ -36,7 +36,7 @@ namespace ExampleModule
             if (details.Length < 5)
                 return CommandResult.BadArgs("Needs to be longer than 5 chars");
 
-            await cmd.Reply("Hello " + MessageHelper.StipMentions(details));
+            await cmd.Reply("Hello " + MessageHelper.StripMentions(details));
 
             //Timeout changes
             Timeout.SetTimeout(TimeSpan.FromSeconds(30));
@@ -45,12 +45,10 @@ namespace ExampleModule
         }
 
         //This will be triggered by returning CommandResult.BadArgs()
-        public async Task<string> Usage()
-        {
-            return "Usage: \n"+
-                            "!test\n" +
-                            "!test \"string\"";
-        }
+        public Task<string> Usage() => Task.FromResult("Usage: \n" +
+            "!test\n" +
+            "!test \"string\"");
+
 
         //Triggered on help
         public async Task<string> Summary()

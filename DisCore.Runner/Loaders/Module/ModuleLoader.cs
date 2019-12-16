@@ -125,6 +125,9 @@ namespace DisCore.Runner.Loaders.Module
                 module.LogHandler = (ILogHandler)Activator.CreateInstance(logHandler);
             }
 
+            //TODO: Get module specific log
+            await module.ModuleObject.OnLoad(_logHandler);
+
             _modules.Add(module);
             return module;
         }

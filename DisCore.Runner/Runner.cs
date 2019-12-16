@@ -65,6 +65,7 @@ namespace DisCore.Runner
 
             if (await RootConfigHelper.UseMongo(RunnerConfig))
             {
+                throw new NotImplementedException("MongoDB not implemented yet");
                 var mongoDetails = await RootConfigHelper.GetMongoDetails(RunnerConfig);
                 ConfigManager = new MongoConfigManager(mongoDetails);
             }
@@ -84,7 +85,7 @@ namespace DisCore.Runner
                 Parser = new CommandParser(ConfigManager, ModuleLoader, LogHandler);
             }
 
-            EventHandler.SetCommandParser(Parser);
+            await EventHandler.SetParser(Parser);
         }
 
         private async Task LoadLibraries()
@@ -165,17 +166,10 @@ namespace DisCore.Runner
         /// <param name="errorAction">Called when variable is already assigned</param>
         private static void TrySet<T>(ref T a, T b, Func<Task> errorAction)
         {
-            if (b == null)
-                return;
+            if (b == null) return;
 
-            if (a == null)
-            {
-                a = b;
-            }
-            else
-            {
-                errorAction().Wait();
-            }
+            if (a == null) a = b;
+            else errorAction().Wait();
 
         }
 

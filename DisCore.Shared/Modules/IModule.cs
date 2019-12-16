@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using DisCore.Shared.Commands;
+using DisCore.Shared.Logging;
 using DSharpPlus.Entities;
 
 namespace DisCore.Shared.Modules
@@ -13,9 +14,9 @@ namespace DisCore.Shared.Modules
 
         String Summary { get; }
 
-        Task OnLoad(HandlerGroup handlers);
+        Task OnLoad(ILogHandler log);
 
-        Task OnUnload(HandlerGroup handlers);
+        Task OnUnload();
 
         Task OnLoadGuild(DiscordGuild guild);
     }
